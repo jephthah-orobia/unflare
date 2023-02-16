@@ -65,4 +65,12 @@ describe('parseQuery() test', () => {
     for (let key in startWithQ) startWithQ_propertycount++;
     expect(startWithQ_propertycount).toBe(5);
   });
+
+  it('should correctly parse URL inputs', () => {
+    const url = new URL('https://example.com/?name=Jonathan%20Smith&age=18');
+    expect(parseQuery(url)).toStrictEqual({
+      age: '18',
+      name: 'Jonathan Smith',
+    });
+  });
 });
