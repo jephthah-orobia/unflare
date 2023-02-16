@@ -1,5 +1,29 @@
 import { describe, expect, it } from 'vitest';
-import { urlIsPath } from './url-is-path';
+import { normalizePath, urlIsPath } from './url-is-path';
+
+describe('normalizePath() test', () => {
+  it('should trim paths correctly', () => {
+    expect(normalizePath('/api/users/1231/email/test@test.test')).toStrictEqual(
+      'api/users/1231/email/test@test.test'
+    );
+    expect(normalizePath('api/users/1231/email/test@test.test/')).toStrictEqual(
+      'api/users/1231/email/test@test.test'
+    );
+    expect(normalizePath('api/users/1231/email/test@test.test')).toStrictEqual(
+      'api/users/1231/email/test@test.test'
+    );
+
+    expect(normalizePath('/api/users/:id/email/:email')).toStrictEqual(
+      'api/users/:id/email/:email'
+    );
+    expect(normalizePath('api/users/:id/email/:email/')).toStrictEqual(
+      'api/users/:id/email/:email'
+    );
+    expect(normalizePath('api/users/:id/email/:email')).toStrictEqual(
+      'api/users/:id/email/:email'
+    );
+  });
+});
 
 describe('urlIsPath() test', () => {
   it('Correctly evaluatets paths for regular paths without patterns', () => {

@@ -1,10 +1,11 @@
+import { URLPattern } from '@cloudflare/workers-types';
 import { describe, it, expect } from 'vitest';
 import {
-  getParams,
+  pathToRegExp,
   urlParamKeysPattern,
   urlParamKeysWithColonPattern,
   urlParamPattern,
-} from './get-params';
+} from './param-patterns';
 
 describe('urlParamKeysPattern', () => {
   it('should fail .test on url with no valid param identifier', () => {
@@ -68,35 +69,14 @@ describe('urlParamPattern', () => {
   });
 });
 
-describe('getParams()', () => {
-  it('should return an empty object if there is no params in patterns', () => {
-    expect(getParams('/api/users', '/api/users')).toStrictEqual({});
-  });
-
-  it('should return an empty object if path and pathPattern do not match', () => {
-    expect(getParams('/api/users', '/api/users')).toStrictEqual({});
-  });
-
-  it('shoule return the correct params with correct keys', () => {
-    const params = getParams('/api/users/124121', '/api/users/:id');
-
-    expect(params).toBeDefined();
-    expect(params.id).toBeDefined();
-    expect(params).toHaveProperty('id');
-    expect(params.id).toStrictEqual('124121');
-
-    const params1 = getParams(
-      '/api/users/asg14snaj1/email/test@test.test',
-      '/api/users/:id/email/:email'
+describe('pathToRegExp()', () => {
+  it('should correctly generate a regex base on a path pattern.', () => {
+    expect(pathToRegExp('api/users/:id/email/:email').source).toStrictEqual(
+      '^api\\/users\\/' +
+        urlParamPattern.source +
+        '\\/email\\/' +
+        urlParamPattern.source +
+        '$'
     );
-
-    expect(params1).toStrictEqual({
-      id: 'asg14snaj1',
-      email: 'test@test.test',
-    });
-    expect(params1).toHaveProperty('id');
-    expect(params1).toHaveProperty('email');
-    expect(params1.id).toStrictEqual('asg14snaj1');
-    expect(params1.email).toStrictEqual('test@test.test');
   });
 });
