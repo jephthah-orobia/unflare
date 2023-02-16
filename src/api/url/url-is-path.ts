@@ -1,17 +1,18 @@
+import { urlParamKeysWithColonPattern, urlParamPattern } from './get-params';
 import { inspectURL } from './inspect-url';
 
-export const urlIsPath = (url: string, host: string, path: string): boolean => {
+export const urlIsPath = (urlPath: string, path: string): boolean => {
+  //trim '/'
   if (path[0] === '/') path = path.substring(1);
   if (path.at(-1) === '/') path = path.substring(0, path.length - 1);
+  if (urlPath[0] === '/') urlPath = urlPath.substring(1);
+  if (urlPath.at(-1) === '/')
+    urlPath = urlPath.substring(0, urlPath.length - 1);
+
   path = path.replaceAll('/', '\\/');
-  path = path.replaceAll(
-    /(?<=\/)\:[a-z\d]+/gi,
-    '((?<=\\/)[a-z-\\d\\%\\_\\.\\~\\+]+)+'
-  );
-  const pathPattern = new RegExp('^' + path + '$');
-  let pathFromUrl = inspectURL(url, host).path;
-  if (pathFromUrl[0] === '/') pathFromUrl = pathFromUrl.substring(1);
-  if (pathFromUrl.at(-1) === '/')
-    pathFromUrl = pathFromUrl.substring(0, pathFromUrl.length - 1);
-  return pathPattern.test(pathFromUrl);
+  path = path.replaceAll(urlParamKeysWithColonPattern, urlParamPattern.source);
+
+  const pathPattern = new RegExp('^' + path + '$', 'i');
+
+  return pathPattern.test(urlPath);
 };
