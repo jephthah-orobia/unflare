@@ -2,6 +2,45 @@ export const urlParamKeysPattern = /(?<=\/\:)[a-z][a-z\d\_]*/gi;
 export const urlParamKeysWithColonPattern = /(?<=\/)\:[a-z][a-z\d\_]*/gi;
 export const urlParamPattern = /(?<=\/)([a-z\-\d\%\_\.\~\+\@]+)/i;
 
+/**
+ * trims '/' if there are any.
+ *
+ * In this module, [unflare](https://github.com/jephthah-orobia/unflare), a normal path shouldn't have a slash '/' in the start and end of the path.
+ * @param path path to normalize
+ * @returns a normalize path.
+ */
+export const normalizePath = (path: string): string => {
+  if (path[0] === '/') path = path.substring(1);
+  if (path.at(-1) === '/') path = path.substring(0, path.length - 1);
+  return path;
+};
+
+/**
+ * Generates a regular expression pattern base on given path.
+ * @param path a path with param identifiers. ie: /api/users/:id/email/:email
+ * @returns a new Regular Expression.
+ */
+export const pathToRegExp = (path: string): RegExp => {
+  // prepare `pathPattern` for constructing a RexExp object
+  path = path.replaceAll('/', '\\/');
+  path = path.replaceAll(urlParamKeysWithColonPattern, urlParamPattern.source);
+  return new RegExp('^' + path + '$', 'i');
+};
+
+/**
+ * Extract params from a path.
+ * ie:
+ * ```js
+ * const params = urlIsPath(
+ *    '/api/users/1212315412/email/test@test.test'
+ *    '/api/users/:id/email/:email');
+ *
+ * console.log([params]) // {id: '1212315412', email: 'test@test.test'}
+ * ```
+ * @param path the path that contains params value.
+ * @param pathPattern the path that contains params identifiers.
+ * @returns An object with params set as properties.
+ */
 export const getParams = (
   path: string,
   pathPattern: string
@@ -9,22 +48,14 @@ export const getParams = (
   const params: { [index: string]: string } = {};
 
   // trim `/`
-  if (path[0] === '/') path = path.substring(1);
-  if (path.at(-1) === '/') path = path.substring(0, path.length - 1);
-  if (pathPattern[0] === '/') pathPattern = pathPattern.substring(1);
-  if (pathPattern.at(-1) === '/')
-    pathPattern = pathPattern.substring(0, pathPattern.length - 1);
+  path = normalizePath(path);
+  pathPattern = normalizePath(pathPattern);
 
   // extract the name of the params
   const keys = pathPattern.match(urlParamKeysPattern)?.map((v) => v);
-  // prepare `pathPattern` for constructing a RexExp object
-  pathPattern = pathPattern.replaceAll('/', '\\/');
-  pathPattern = pathPattern.replaceAll(
-    urlParamKeysWithColonPattern,
-    urlParamPattern.source
-  );
+
   // generate RegExp obj
-  const pathPatternRX = new RegExp('^' + pathPattern + '$', 'i');
+  const pathPatternRX = pathToRegExp(pathPattern);
 
   // extract the values of the params
   const values = path
@@ -41,6 +72,7 @@ export const getParams = (
   )
     return params;
 
+  // populate params.
   for (let i = 0; i < keys.length; i++) params[keys[i]] = values[i];
 
   return params;
