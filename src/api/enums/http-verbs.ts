@@ -52,3 +52,28 @@ export enum HTTPVerbs {
    */
   PATCH = 'PATCH',
 }
+
+export const stringToHTTPVerbs = (str: string): HTTPVerbs => {
+  switch (str.toUpperCase()) {
+    case 'GET':
+      return HTTPVerbs.GET;
+    case 'POST':
+      return HTTPVerbs.POST;
+    case 'HEAD':
+      return HTTPVerbs.HEAD;
+    case 'DELETE':
+      return HTTPVerbs.DELETE;
+    case 'PUT':
+      return HTTPVerbs.PUT;
+    case 'PATCH':
+      return HTTPVerbs.PATCH;
+    case 'CONNECT':
+      return HTTPVerbs.CONNECT;
+    case 'OPTIONS':
+      return HTTPVerbs.OPTIONS;
+    case 'TRACE':
+      return HTTPVerbs.TRACE;
+    default:
+      return HTTPVerbs.GET;
+  }
+};
