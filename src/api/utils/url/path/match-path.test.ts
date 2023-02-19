@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { normalizePath, urlIsPath } from './url-is-path';
+import { normalizePath, matchPath } from './match-path';
 
 describe('normalizePath() test', () => {
   it('should trim paths correctly', () => {
@@ -25,37 +25,37 @@ describe('normalizePath() test', () => {
   });
 });
 
-describe('urlIsPath() test', () => {
+describe('matchPath() test', () => {
   it('Correctly evaluatets paths for regular paths without patterns', () => {
-    expect(urlIsPath('/', '/')).toStrictEqual(true);
-    expect(urlIsPath('/', '/asdgha')).toStrictEqual(false);
-    expect(urlIsPath('/user/api', '/asdgha')).toStrictEqual(false);
-    expect(urlIsPath('/user/api', '/user/api')).toStrictEqual(true);
-    expect(urlIsPath('/user/api', 'user/api')).toStrictEqual(true);
-    expect(urlIsPath('/user/api', 'user/api/')).toStrictEqual(true);
-    expect(urlIsPath('/user/api', '/user/api/')).toStrictEqual(true);
+    expect(matchPath('/', '/')).toStrictEqual(true);
+    expect(matchPath('/', '/asdgha')).toStrictEqual(false);
+    expect(matchPath('/user/api', '/asdgha')).toStrictEqual(false);
+    expect(matchPath('/user/api', '/user/api')).toStrictEqual(true);
+    expect(matchPath('/user/api', 'user/api')).toStrictEqual(true);
+    expect(matchPath('/user/api', 'user/api/')).toStrictEqual(true);
+    expect(matchPath('/user/api', '/user/api/')).toStrictEqual(true);
   });
 
   it('Correctly evaluate path with params', () => {
-    expect(urlIsPath('/user/api/', '/user/api/:id')).toBe(false);
+    expect(matchPath('/user/api/', '/user/api/:id')).toBe(false);
 
-    expect(urlIsPath('/user/api/1245123', '/user/api/:id')).toBe(true);
+    expect(matchPath('/user/api/1245123', '/user/api/:id')).toBe(true);
 
-    expect(urlIsPath('/user/api/1245123', '/user/api/:id/')).toBe(true);
+    expect(matchPath('/user/api/1245123', '/user/api/:id/')).toBe(true);
   });
 
   it('Correctly evaluate path with multiple params', () => {
     expect(
-      urlIsPath('/user/api/12341545/username', '/user/api/:id/username/:name')
+      matchPath('/user/api/12341545/username', '/user/api/:id/username/:name')
     ).toBe(false);
     expect(
-      urlIsPath(
+      matchPath(
         '/user/api/1245123/email/sirjep.asgda',
         '/user/api/:id/email/:email'
       )
     ).toBe(true);
     expect(
-      urlIsPath(
+      matchPath(
         '/user/api/1245123/email/sirjep.asgda',
         '/user/api/:id/:key/:email'
       )

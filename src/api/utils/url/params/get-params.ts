@@ -1,5 +1,5 @@
 import { pathToRegExp, urlParamKeysPattern } from './param-patterns';
-import { normalizePath } from '../path/url-is-path';
+import { normalizePath } from '../path/match-path';
 
 /**
  * Extract params from a path.
