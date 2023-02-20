@@ -58,6 +58,11 @@ export class Route implements RequestHandler {
   #index: number = -1;
   constructor(private pathOrPattern: string | RegExp) {}
 
+  get path(): string {
+    return this.pathOrPattern instanceof RegExp
+      ? this.pathOrPattern.source
+      : this.pathOrPattern;
+  }
   #next(err?: any): void {
     if (!this.#req || !this.#res)
       throw new Error('No request found or responder object is not created.');
