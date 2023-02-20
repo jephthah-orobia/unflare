@@ -58,9 +58,13 @@ export class Route implements RequestHandler {
   #index: number = -1;
   constructor(private pathOrPattern: string | RegExp) {}
 
-  matchPath(path: String | RegExp): boolean {
+  matchPath(path: String | RegExp): { isMatch: boolean; route?: Route } {
     const pathStr = path instanceof RegExp ? path.source : path;
-    return this.path === pathStr;
+    const toReturn: { isMatch: boolean; route?: Route } = {
+      isMatch: this.path === pathStr,
+    };
+    if (toReturn.isMatch) toReturn.route = this;
+    return toReturn;
   }
 
   get path(): string {
