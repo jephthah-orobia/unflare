@@ -51,6 +51,10 @@ export enum HTTPVerbs {
    * The PATCH method applies partial modifications to a resource.
    */
   PATCH = 'PATCH',
+  /**
+   * pertains to all httpverbs
+   */
+  ALL = 'ALL',
 }
 
 export const stringToHTTPVerbs = (str: string): HTTPVerbs => {
@@ -74,6 +78,6 @@ export const stringToHTTPVerbs = (str: string): HTTPVerbs => {
     case 'TRACE':
       return HTTPVerbs.TRACE;
     default:
-      return HTTPVerbs.GET;
+      return HTTPVerbs.ALL;
   }
 };

@@ -1,4 +1,5 @@
 import { HTTPVerbs, stringToHTTPVerbs } from '../enums/http-verbs';
+import { getParams } from '../utils/url/params/get-params';
 import { parseQuery } from '../utils/url/query/parse-query';
 
 export class Requester {
@@ -39,5 +40,11 @@ export class Requester {
   }
   get data(): { [key: string]: any } {
     return { ...this.#data };
+  }
+  set params(obj: { [key: string]: string }) {
+    this.#params = { ...this.#params, ...obj };
+  }
+  set data(obj: { [key: string]: any }) {
+    this.#data = { ...this.#data, ...obj };
   }
 }
