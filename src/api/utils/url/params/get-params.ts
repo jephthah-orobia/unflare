@@ -17,25 +17,30 @@ import { normalizePath } from '../path/match-path';
  */
 export const getParams = (
   path: string,
-  pathPattern: string
+  pathPattern: string | RegExp
 ): { [index: string]: string } => {
   const params: { [index: string]: string } = {};
-
+  let pathPatternRX: RegExp;
+  let keys: string[] | undefined;
   // trim `/`
   path = normalizePath(path);
-  pathPattern = normalizePath(pathPattern);
-
-  // extract the name of the params
-  const keys = pathPattern.match(urlParamKeysPattern)?.map((v) => v);
-
-  // generate RegExp obj
-  const pathPatternRX = pathToRegExp(pathPattern);
+  if (typeof pathPattern === 'string') {
+    pathPattern = normalizePath(pathPattern);
+    // extract the name of the params
+    keys = pathPattern.match(urlParamKeysPattern)?.map((v) => v);
+    // generate RegExp obj
+    pathPatternRX = pathToRegExp(pathPattern);
+  } else {
+    pathPatternRX = pathPattern;
+  }
 
   // extract the values of the params
   const values = path
     .match(pathPatternRX)
     ?.map((e) => e)
     ?.filter((e) => e !== path);
+
+  if (pathPattern instanceof RegExp) keys = values?.map((e, i) => `$${i}`);
 
   // check if there is any valid params or if the params set in path is matched with params in pattern.
   if (
