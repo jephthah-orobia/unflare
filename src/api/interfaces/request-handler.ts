@@ -4,12 +4,12 @@ import { Route } from '../core/route';
 
 export interface RequestHandler {
   canHandle(req: Requester): boolean;
-  routOfPath(path: String | RegExp): Route | null;
+  routeOfPath(path: String | RegExp): Route | null;
   handle(req: Requester, res: Responder, err?: any): Promise<void>;
 }
 
 export const isRequestHandler = (obj: any): obj is RequestHandler => {
-  const props = ['canHandle', 'routOfPath', 'handle'];
+  const props = ['canHandle', 'routeOfPath', 'handle'];
   const keys = Object.keys(obj);
   const types = keys.map((k) => props.includes(k) && typeof obj[k]);
   return (

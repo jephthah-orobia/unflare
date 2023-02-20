@@ -58,7 +58,7 @@ export class Route implements RequestHandler {
   #index: number = -1;
   constructor(private pathOrPattern: string | RegExp) {}
 
-  routOfPath(path: String | RegExp): Route | null {
+  routeOfPath(path: String | RegExp): Route | null {
     const pathStr =
       path instanceof RegExp ? path.source.replaceAll('\\/', '/') : path;
     if (this.path === pathStr) return this;
