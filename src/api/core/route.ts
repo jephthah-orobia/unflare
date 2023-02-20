@@ -58,6 +58,11 @@ export class Route implements RequestHandler {
   #index: number = -1;
   constructor(private pathOrPattern: string | RegExp) {}
 
+  matchPath(path: String | RegExp): boolean {
+    const pathStr = path instanceof RegExp ? path.source : path;
+    return this.path === pathStr;
+  }
+
   get path(): string {
     return this.pathOrPattern instanceof RegExp
       ? this.pathOrPattern.source
