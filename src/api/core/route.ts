@@ -58,18 +58,16 @@ export class Route implements RequestHandler {
   #index: number = -1;
   constructor(private pathOrPattern: string | RegExp) {}
 
-  matchPath(path: String | RegExp): { isMatch: boolean; route?: Route } {
-    const pathStr = path instanceof RegExp ? path.source : path;
-    const toReturn: { isMatch: boolean; route?: Route } = {
-      isMatch: this.path === pathStr,
-    };
-    if (toReturn.isMatch) toReturn.route = this;
-    return toReturn;
+  routOfPath(path: String | RegExp): Route | null {
+    const pathStr =
+      path instanceof RegExp ? path.source.replaceAll('\\/', '/') : path;
+    if (this.path === pathStr) return this;
+    else return null;
   }
 
   get path(): string {
     return this.pathOrPattern instanceof RegExp
-      ? this.pathOrPattern.source
+      ? this.pathOrPattern.source.replaceAll('\\/', '/')
       : this.pathOrPattern;
   }
   #next(err?: any): void {
@@ -106,7 +104,7 @@ export class Route implements RequestHandler {
     }
   }
 
-  _handle_methods(method: HTTPVerbs, ...args: (Handler | Handler[])[]) {
+  _handle_methods(method: HTTPVerbs, ...args: (Handler | Handler[])[]): Route {
     if (!this.#methods.includes(method)) this.#methods.push(method);
     const flattenArgs = flattenArray(...args);
     for (const handler of flattenArgs) {
@@ -116,6 +114,7 @@ export class Route implements RequestHandler {
         this.#handlers.push(handler);
       }
     }
+    return this;
   }
 
   canHandle(req: Requester): boolean {
@@ -148,23 +147,23 @@ export class Route implements RequestHandler {
 }
 
 export declare interface Route {
-  head(...args: (Handler | Handler[])[]): void;
-  get(...args: (Handler | Handler[])[]): void;
-  post(...args: (Handler | Handler[])[]): void;
-  put(...args: (Handler | Handler[])[]): void;
-  patch(...args: (Handler | Handler[])[]): void;
-  delete(...args: (Handler | Handler[])[]): void;
-  connect(...args: (Handler | Handler[])[]): void;
-  trace(...args: (Handler | Handler[])[]): void;
-  options(...args: (Handler | Handler[])[]): void;
-  all(...args: (Handler | Handler[])[]): void;
+  head(...args: (Handler | Handler[])[]): Route;
+  get(...args: (Handler | Handler[])[]): Route;
+  post(...args: (Handler | Handler[])[]): Route;
+  put(...args: (Handler | Handler[])[]): Route;
+  patch(...args: (Handler | Handler[])[]): Route;
+  delete(...args: (Handler | Handler[])[]): Route;
+  connect(...args: (Handler | Handler[])[]): Route;
+  trace(...args: (Handler | Handler[])[]): Route;
+  options(...args: (Handler | Handler[])[]): Route;
+  all(...args: (Handler | Handler[])[]): Route;
   [index: string]: Function | string | RegExp;
 }
 
 for (const verb in HTTPVerbs) {
   Route.prototype[verb.toLowerCase()] = function (
     ...args: (Handler | Handler[])[]
-  ): void {
-    this._handle_methods(stringToHTTPVerbs(verb), ...args);
+  ): Route {
+    return this._handle_methods(stringToHTTPVerbs(verb), ...args);
   };
 }

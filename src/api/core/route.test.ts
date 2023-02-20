@@ -32,7 +32,7 @@ describe('Route::canHandle()', () => {
     expect(route1.canHandle(req1)).toStrictEqual(false);
   });
 
-  it('should return true if the request method is not added to route', () => {
+  it('should return true if the request method is added to route', () => {
     const route1 = new Route('/api/users');
     const req1 = new Requester(
       new Request('https://example.com/api/users', { method: 'GET' })
@@ -84,5 +84,24 @@ describe('Route::handle()', () => {
     expect(() => route1.handle(req1, res)).not.toThrowError();
     expect(req1.params).toStrictEqual({ id: '1234', email: 'test@test.test' });
     expect(res.isDone).toStrictEqual(true);
+  });
+});
+
+describe('Route::routOfPath', () => {
+  const pattern1 = /\/api\/users/i;
+  const route1 = new Route('/api/users');
+  const route2 = new Route('/api/users/:id/email/:email');
+  const route3 = new Route(pattern1);
+
+  it('should return true/false according to the provided path', () => {
+    expect(route1.path).toStrictEqual('/api/users');
+    expect(route2.path).toStrictEqual('/api/users/:id/email/:email');
+    expect(pattern1.source.replaceAll('\\/', '/')).toStrictEqual('/api/users');
+    expect(route3.path).toStrictEqual('/api/users');
+    expect(route1.routOfPath('/api/email')).toStrictEqual(false);
+    expect(route2.routOfPath('/api/users')).toStrictEqual(false);
+    expect(route3.routOfPath('/api/users')).toStrictEqual(true);
+    expect(route1.routOfPath('/api/users')).toStrictEqual(true);
+    expect(route1.routOfPath('/api/users')).toStrictEqual(true);
   });
 });
