@@ -15,7 +15,10 @@ export class Requester {
    * Instance of this class is use by unflare as first argument for middlewares and route callbacks
    * @param request cloudflare workers' Request object
    */
-  constructor(public readonly request: Request) {
+  constructor(
+    public readonly request: Request,
+    public strict: boolean = false
+  ) {
     this.#url = new URL(request.url);
     this.#query = parseQuery(this.url);
     this.#params = {};
