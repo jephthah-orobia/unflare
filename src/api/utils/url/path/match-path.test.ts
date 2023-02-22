@@ -62,3 +62,13 @@ describe('matchPath() test', () => {
     ).toBe(true);
   });
 });
+
+describe('matchPath(string, RegExp)', () => {
+  const pattern = /\/api\/users\/(\d+)/i;
+  it('should return false when path fails RegExp test', () => {
+    expect(matchPath('/api/users', pattern)).toStrictEqual(false);
+  });
+  it('should return true when path passes the RegExp test', () => {
+    expect(matchPath('/api/users/123', pattern)).toStrictEqual(true);
+  });
+});
