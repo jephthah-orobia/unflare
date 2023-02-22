@@ -58,10 +58,15 @@ export class Route implements RequestHandler {
   #index: number = -1;
   constructor(private pathOrPattern: string | RegExp) {}
 
-  routeOfPath(path: String | RegExp): Route | null {
+  routeOfPath(path: string | RegExp): Route | null {
     const pathStr =
       path instanceof RegExp ? path.source.replaceAll('\\/', '/') : path;
-    if (this.path === pathStr) return this;
+    if (
+      this.path === pathStr ||
+      matchPath(pathStr, this.pathOrPattern) ||
+      matchPath(this.path, path)
+    )
+      return this;
     else return null;
   }
 
@@ -119,11 +124,11 @@ export class Route implements RequestHandler {
 
   canHandle(req: Requester): boolean {
     if (
-      !this.#methods.includes(req.method) &&
-      !this.#methods.includes(HTTPVerbs.ALL)
+      this.#methods.includes(req.method) ||
+      this.#methods.includes(HTTPVerbs.ALL)
     )
-      return false;
-    return matchPath(req.url.pathname, this.pathOrPattern);
+      return matchPath(req.url.pathname, this.pathOrPattern, req.strict);
+    return false;
   }
 
   async handle(req: Requester, res: Responder, err?: any): Promise<void> {

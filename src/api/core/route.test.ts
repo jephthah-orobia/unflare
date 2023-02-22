@@ -98,10 +98,10 @@ describe('Route::routeOfPath', () => {
     expect(route2.path).toStrictEqual('/api/users/:id/email/:email');
     expect(pattern1.source.replaceAll('\\/', '/')).toStrictEqual('/api/users');
     expect(route3.path).toStrictEqual('/api/users');
-    expect(route1.routeOfPath('/api/email')).toStrictEqual(false);
-    expect(route2.routeOfPath('/api/users')).toStrictEqual(false);
-    expect(route3.routeOfPath('/api/users')).toStrictEqual(true);
-    expect(route1.routeOfPath('/api/users')).toStrictEqual(true);
-    expect(route1.routeOfPath('/api/users')).toStrictEqual(true);
+    expect(route1.routeOfPath('/api/email')).toStrictEqual(null);
+    expect(route2.routeOfPath('/api/users')).toStrictEqual(null);
+    expect(route3.routeOfPath('/api/users')).toStrictEqual(route3);
+    expect(route1.routeOfPath('/api/users')).toStrictEqual(route1);
+    expect(route2.routeOfPath('/api/users/12314/email/asdgas')).toStrictEqual(route2);
   });
 });
