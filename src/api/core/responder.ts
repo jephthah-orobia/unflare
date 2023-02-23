@@ -1,12 +1,12 @@
 import { CookieOptions } from '../interfaces/cookie-options';
 
 export class Responder {
+  #defaultCookieOptions: CookieOptions;
   isDone: boolean = false;
   statusCode: number | undefined;
   statusText: string | undefined;
   headers: Map<string, string> = new Map<string, string>();
   body: any;
-  #defaultCookieOptions: CookieOptions;
 
   constructor(private host: string) {
     this.#defaultCookieOptions = {
@@ -45,18 +45,13 @@ export class Responder {
       this.body = body;
       this.isDone = true;
     } else {
-      throw new Error('Can not change response once sent.');
+      console.error('Can not change response once sent.');
     }
   };
 
   json = (obj: any) => {
-    if (!this.isDone) {
-      this.headers.set('Content-Type', 'application/json');
-      this.body = JSON.stringify(obj);
-      this.isDone = true;
-    } else {
-      throw new Error('Can not change response once sent.');
-    }
+    this.headers.set('Content-Type', 'application/json');
+    this.send(JSON.stringify(obj));
   };
 
   /**
@@ -78,8 +73,6 @@ export class Responder {
   cookie(name: string, value: string, options: CookieOptions): Responder {
     const opts = { ...this.#defaultCookieOptions, ...options };
     //TODO
-    const res = new Response();
-
     return this;
   }
 }
