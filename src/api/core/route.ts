@@ -134,12 +134,18 @@ export class Route implements RequestHandler {
   async handle(req: Requester, res: Responder, err?: any): Promise<void> {
     this.#req = req;
     this.#res = res;
-    if (this.canHandle(req)) {
-      this.#index = -1;
-      this.#req.params = getParams(this.#req.path, this.pathOrPattern);
-      if (!err) this.#next();
-      else this.#next(err);
-    }
+    this.#index = -1;
+    if (
+      !err &&
+      req &&
+      res &&
+      matchPath(req.path, this.pathOrPattern, req.strict)
+    ) {
+      this.#req.params = getParams(req.path, this.pathOrPattern);
+      this.#next();
+    } else this.#next(err);
+    this.#req = undefined;
+    this.#res = undefined;
     this.#index = -1;
   }
 

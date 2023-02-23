@@ -79,12 +79,14 @@ export class Router implements RequestHandler {
       const handler = this.#handlers[++this.#index];
       if (!err && isMiddleware(handler))
         returnValue = handler(this.#req, this.#res, this.#next);
-      if (!err && isAsyncMiddleware(handler))
+      else if (!err && isAsyncMiddleware(handler))
         returnValue = handler(this.#req, this.#res, this.#next).then(() => {});
       else if (err && isErrorHandler(handler))
         returnValue = handler(err, this.#req, this.#res, this.#next);
       else if (err && isAsyncErrorHandler(handler))
         returnValue = handler(err, this.#req, this.#res, this.#next);
+      else if (err && isRequestHandler(handler) && handler.canHandle(this.#req))
+        returnValue = handler.handle(this.#req, this.#res, err);
       else if (
         !err &&
         isRequestHandler(handler) &&
@@ -92,13 +94,17 @@ export class Router implements RequestHandler {
       )
         returnValue = handler.handle(this.#req, this.#res);
       else if (
-        handler &&
+        !err &&
         isRequestHandler(handler) &&
-        handler.canHandle(this.#req)
+        !handler.canHandle(this.#req)
       )
-        returnValue = handler.handle(this.#req, this.#res, err);
+        this.#next();
       if (isPromise<void>(returnValue)) returnValue.then(() => {});
     }
+  }
+
+  get handlers() {
+    return this.#handlers;
   }
 
   routeOfPath(path: string | RegExp): Route | null {
@@ -117,14 +123,13 @@ export class Router implements RequestHandler {
   }
 
   async handle(req: Requester, res: Responder, err?: any): Promise<void> {
-    if (this.canHandle(req)) {
-      this.#req = req;
-      this.#res = res;
-      this.#index = -1;
-      if (!err) this.#next();
-      else this.#next(err);
-      this.#index = -1;
-    }
+    this.#req = req;
+    this.#res = res;
+    this.#index = -1;
+    if (!err) this.#next();
+    else this.#next(err);
+    this.#req = undefined;
+    this.#res = undefined;
   }
 
   route(pathOrPattern: string | RegExp): Route {

@@ -87,7 +87,7 @@ describe('Router::canHandle()', () => {
 });
 
 describe('Router::handle()', () => {
-  it('should set the params property of the requester and set the isDone property of the responder given valid handlers', () => {
+  it('should set the params property of the requester and set the isDone property of the responder given valid handlers', async () => {
     const route1 = new Router();
     const req1 = new Requester(
       new Request('https://example.com/api/users/1234/email/test@test.test', {
@@ -105,5 +105,38 @@ describe('Router::handle()', () => {
     expect(() => route1.handle(req1, res)).not.toThrowError();
     expect(req1.params).toStrictEqual({ id: '1234', email: 'test@test.test' });
     expect(res.isDone).toStrictEqual(true);
+
+    const route2 = new Router();
+    const req = new Request('https://www.example.com', { method: 'GET' });
+    const req_1 = new Request('https://www.example.com/user/keeser', {
+      method: 'GET',
+    });
+    const req_2 = new Request('https://www.example.com/users', {
+      method: 'GET',
+    });
+    const reser1 = new Responder('www.example.com');
+    const reser2 = new Responder('www.example.com');
+    const reser3 = new Responder('www.example.com');
+
+    route2.get('/', (req: Requester, res: Responder) => {
+      res.send('Hello World');
+    });
+
+    route2.get('/user/:id', (re: Requester, res: Responder) => {
+      res.send(re.params.id);
+    });
+
+    route2.get('/users', (req: Requester, res: Responder) => {
+      res.send('users here');
+    });
+    await route2.handle(new Requester(req), reser1);
+    const res1 = reser1.response;
+    expect(await res1?.text()).toStrictEqual('Hello World');
+    await route2.handle(new Requester(req_1), reser2);
+    const res2 = reser2.response;
+    expect(await res2?.text()).toStrictEqual('keeser');
+    await route2.handle(new Requester(req_2), reser3);
+    const res3 = reser3.response;
+    expect(await res3?.text()).toStrictEqual('users here');
   });
 });
