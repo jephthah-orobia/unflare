@@ -1,4 +1,3 @@
-import { URLPattern } from '@cloudflare/workers-types';
 import { describe, it, expect } from 'vitest';
 import {
   pathToRegExp,
