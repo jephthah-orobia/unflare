@@ -40,19 +40,19 @@ export class Responder {
     return this;
   };
 
-  send = (body?: any) => {
+  send(body?: any) {
     if (!this.isDone) {
       this.body = body;
       this.isDone = true;
     } else {
       console.error('Can not change response once sent.');
     }
-  };
+  }
 
-  json = (obj: any) => {
+  json(obj: any) {
     this.headers.set('Content-Type', 'application/json');
     this.send(JSON.stringify(obj));
-  };
+  }
 
   /**
    * Sets the cookie
