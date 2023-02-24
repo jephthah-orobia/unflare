@@ -43,7 +43,7 @@ export class Unflare extends Router {
     ctx?: ExecutionContext
   ): Promise<Response> {
     ctx?.passThroughOnException();
-    const reqer = new Requester(req, this.strict);
+    const reqer = await Requester.fromRequest(req, this.strict);
     const reser = new Responder(reqer.url.host);
     if (this.canHandle(reqer)) {
       await this.handle(reqer, reser);
