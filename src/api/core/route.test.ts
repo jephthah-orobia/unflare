@@ -69,7 +69,7 @@ describe('Route::canHandle()', () => {
 });
 
 describe('Route::handle()', () => {
-  it('should set the params property of the requester and set the isDone property of the responder given valid handlers', () => {
+  it('should set the params property of the requester and set the isDone property of the responder given valid handlers', async () => {
     const route1 = new Route('/api/users/:id/email/:email');
     const req1 = new Requester(
       new Request('https://example.com/api/users/1234/email/test@test.test', {
@@ -92,10 +92,14 @@ describe('Route::handle()', () => {
       method: 'POST',
       body: JSON.stringify(bodyToSend),
     });
-
+    const encoder = new TextEncoder();
     reqO.headers.set('Content-Type', 'application/json');
+    reqO.headers.set(
+      'Content-Length',
+      encoder.encode(JSON.stringify(bodyToSend)).length.toString()
+    );
 
-    const req1 = new Requester(reqO);
+    const req1 = await Requester.fromRequest(reqO);
 
     route1.post((req: Requester, res: Responder) => {
       res.send(JSON.stringify(req.body));
@@ -103,6 +107,7 @@ describe('Route::handle()', () => {
 
     expect(req1.body).toBeDefined();
     expect(req1.body).toStrictEqual(bodyToSend);
+
     expect(route1.canHandle(req1)).toStrictEqual(true);
     const res = new Responder('example.com');
     expect(() => route1.handle(req1, res)).not.toThrowError();

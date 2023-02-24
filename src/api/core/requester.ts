@@ -1,4 +1,5 @@
 import { HTTPVerbs, stringToHTTPVerbs } from '../enums/http-verbs';
+import { parseBody } from '../utils/request/parse-body';
 import { getParams } from '../utils/url/params/get-params';
 import { parseQuery } from '../utils/url/query/parse-query';
 
@@ -9,6 +10,7 @@ export class Requester {
   #params: { [key: string]: string };
   #data: { [key: string]: any };
   #method: HTTPVerbs;
+  body: any;
   //#endregion
 
   /**
@@ -25,6 +27,15 @@ export class Requester {
     this.#data = {};
     this.#method = stringToHTTPVerbs(request.method);
   }
+
+  static fromRequest = async (
+    req: Request,
+    strict: boolean = false
+  ): Promise<Requester> => {
+    const reqer = new Requester(req, strict);
+    reqer.body = await parseBody(req);
+    return reqer;
+  };
 
   get method(): HTTPVerbs {
     return this.#method;
@@ -44,6 +55,7 @@ export class Requester {
   get data(): { [key: string]: any } {
     return { ...this.#data };
   }
+
   set params(obj: { [key: string]: string }) {
     this.#params = { ...this.#params, ...obj };
   }
