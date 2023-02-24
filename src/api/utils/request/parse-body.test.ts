@@ -44,7 +44,6 @@ describe('parseBody', () => {
       'Content-Length',
       encoder.encode(JSON.stringify(obj)).length.toString()
     );
-    console.log(encoder.encode(JSON.stringify(obj)).length.toString());
 
     expect(await parseBody(req)).toStrictEqual(obj);
   });

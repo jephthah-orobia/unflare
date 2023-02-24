@@ -13,7 +13,6 @@ export async function parseBody(req: Request): Promise<any> {
     return null;
   }
   const length = parseInt(lengthStr);
-  console.log('content-length:', length);
   if (isNaN(length) || length < 0) {
     console.error('Content-Length of header is invalid');
     return null;
