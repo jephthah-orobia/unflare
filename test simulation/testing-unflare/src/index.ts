@@ -29,4 +29,12 @@ app.get('/', function (req: Requester, res: Responder) {
   res.send('Hello World!');
 });
 
+app.get('/users', function (req: Requester, res: Responder) {
+  res.send('Users page');
+});
+
+app.get('/users/:id', (req: Requester, res: Responder) => {
+  res.send(`User page, you were trying to view: ${req.params.id}`);
+});
+
 export default app;
