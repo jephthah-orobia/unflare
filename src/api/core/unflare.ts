@@ -34,7 +34,7 @@ export class Unflare extends Router {
   }
 
   listen(mod: NodeModule) {
-    mod.exports = this;
+    mod.exports.default = this;
   }
 
   async fetch(
