@@ -85,6 +85,30 @@ describe('Route::handle()', () => {
     expect(req1.params).toStrictEqual({ id: '1234', email: 'test@test.test' });
     expect(res.isDone).toStrictEqual(true);
   });
+  it('should set the body property of the requester and set the isDone property of the responder given valid handlers', async () => {
+    const route1 = new Route('/api/users');
+    const bodyToSend = { email: 'test@test.com', password: 'Abc123' };
+    const reqO = new Request('https://example.com/api/users', {
+      method: 'POST',
+      body: JSON.stringify(bodyToSend),
+    });
+
+    reqO.headers.set('Content-Type', 'application/json');
+
+    const req1 = new Requester(reqO);
+
+    route1.post((req: Requester, res: Responder) => {
+      res.send(JSON.stringify(req.body));
+    });
+
+    expect(req1.body).toBeDefined();
+    expect(req1.body).toStrictEqual(bodyToSend);
+    expect(route1.canHandle(req1)).toStrictEqual(true);
+    const res = new Responder('example.com');
+    expect(() => route1.handle(req1, res)).not.toThrowError();
+    expect(res.isDone).toStrictEqual(true);
+    expect(await res.response.json()).toStrictEqual(bodyToSend);
+  });
 });
 
 describe('Route::routeOfPath', () => {
@@ -102,6 +126,8 @@ describe('Route::routeOfPath', () => {
     expect(route2.routeOfPath('/api/users')).toStrictEqual(null);
     expect(route3.routeOfPath('/api/users')).toStrictEqual(route3);
     expect(route1.routeOfPath('/api/users')).toStrictEqual(route1);
-    expect(route2.routeOfPath('/api/users/12314/email/asdgas')).toStrictEqual(route2);
+    expect(route2.routeOfPath('/api/users/12314/email/asdgas')).toStrictEqual(
+      route2
+    );
   });
 });

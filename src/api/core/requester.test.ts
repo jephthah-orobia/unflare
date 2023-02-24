@@ -28,4 +28,26 @@ describe('Requester instantiation', () => {
       email: 'test@test.test',
     });
   });
+
+  it('should set body property to the PARSED body of the request if there is any', () => {
+    const header = new Headers();
+    header.append('host', 'example.com');
+    header.append('Content-Type', 'application/json');
+    header.append('body', JSON.stringify({ userId: '12412512341' }));
+    const bodyToSend = { query: 'what is this?', queryId: '12345' };
+    const req = new Request(
+      new URL('https://example.com/api/users?id=keeser&email=test@test.test'),
+      {
+        method: 'POST',
+        headers: header,
+        body: JSON.stringify(bodyToSend),
+      }
+    );
+    const reqer = new Requester(req);
+
+    expect(reqer).toBeDefined();
+    expect(reqer).toHaveProperty('body');
+    expect(reqer).toBeDefined();
+    expect(reqer.body).toStrictEqual(bodyToSend);
+  });
 });
