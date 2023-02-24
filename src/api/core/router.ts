@@ -45,7 +45,7 @@ const isHandler = (obj: any): obj is Handler => {
   );
 };
 
-export type RouteHandlers =
+type RouteHandlers =
   | RouteHandler
   | AsyncRouteHandler
   | Middleware
