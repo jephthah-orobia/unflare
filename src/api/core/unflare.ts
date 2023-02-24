@@ -1,6 +1,6 @@
 import { Requester } from './requester';
 import { Responder } from './responder';
-import { Router } from './router';
+import { Router, RouteHandlers } from './router';
 
 export interface Env {
   // Example binding to KV. Learn more at https://developers.cloudflare.com/workers/runtime-apis/kv/
@@ -65,4 +65,49 @@ export class Unflare extends Router {
   /* async scheduled(event: ScheduledEvent, env: Env, ctx: ExecutionContext) {
     //ctx.waitUntil(doSomeTaskOnASchedule());
   }, */
+}
+
+export declare interface Unflare {
+  head(
+    path: string | RegExp,
+    ...args: (RouteHandlers | RouteHandlers[])[]
+  ): Router;
+  get(
+    path: string | RegExp,
+    ...args: (RouteHandlers | RouteHandlers[])[]
+  ): Router;
+  post(
+    path: string | RegExp,
+    ...args: (RouteHandlers | RouteHandlers[])[]
+  ): Router;
+  put(
+    path: string | RegExp,
+    ...args: (RouteHandlers | RouteHandlers[])[]
+  ): Router;
+  patch(
+    path: string | RegExp,
+    ...args: (RouteHandlers | RouteHandlers[])[]
+  ): Router;
+  delete(
+    path: string | RegExp,
+    ...args: (RouteHandlers | RouteHandlers[])[]
+  ): Router;
+  connect(
+    path: string | RegExp,
+    ...args: (RouteHandlers | RouteHandlers[])[]
+  ): Router;
+  trace(
+    path: string | RegExp,
+    ...args: (RouteHandlers | RouteHandlers[])[]
+  ): Router;
+  options(
+    path: string | RegExp,
+    ...args: (RouteHandlers | RouteHandlers[])[]
+  ): Router;
+  all(
+    path: string | RegExp,
+    ...args: (RouteHandlers | RouteHandlers[])[]
+  ): Router;
+
+  [index: string]: any;
 }
