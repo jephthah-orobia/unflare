@@ -9,7 +9,8 @@
   "scripts": {
     "test": "vitest",
     "clean": "del-cli dist",
-    "build": "npm run clean && tsc"
+    "build": "npm run clean && tsc",
+    "simulation_test": "build & cd test* & cd test* & npm run test"
   },
   "keywords": [
     "unflare",
