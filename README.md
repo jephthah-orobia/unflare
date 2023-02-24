@@ -9,26 +9,27 @@ Just another [express](https://expressjs.com/)-inspired web framework for [cloud
 ```js
 import unflare from 'unflare';
 
-const app = unflare();
+export const app = new unflare();
 
 app.get('/', function (req, res) {
   res.send('Hello World');
 });
-app.listen(module);
+
+export default app;
 ```
 
 ### Typescript:
 
 ```typescript
-import unflare, { Requester, Responder } from 'unflare';
+import { Unflare, Requester, Responder } from 'unflare';
 
-const app = unflare();
+export const app = new Unflare();
 
 app.get('/', function (req: Requester, res: Responder) {
-  res.send('Hello World');
+  res.send('Hello World!');
 });
 
-app.listen(module);
+export default app;
 ```
 
 ## Installation
