@@ -72,7 +72,6 @@ describe('Responder', () => {
       const toSend1 = { user: 'tester', id: '12412312' };
       resp1.send(JSON.stringify(toSend1));
       const res1 = resp1.response;
-      console.log(res1.headers.get('Content-Type'));
       expect(await res1.text()).toBe(JSON.stringify(toSend1));
     });
   });

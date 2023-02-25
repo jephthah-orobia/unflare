@@ -1,15 +1,16 @@
 import { HTTPVerbs, stringToHTTPVerbs } from '../enums/http-verbs';
 import { parseBody } from '../utils/request/parse-body';
-import { getParams } from '../utils/url/params/get-params';
 import { parseQuery } from '../utils/url/query/parse-query';
+import { parse as parseCookie } from 'cookie';
 
 export class Requester {
   //#region privates
   #url: URL;
-  #query: { [key: string]: string };
-  #params: { [key: string]: string };
-  #data: { [key: string]: any };
+  #query: Record<string, string>;
+  #params: Record<string, string>;
+  #data: Record<string, any>;
   #method: HTTPVerbs;
+  #cookies: Record<string, string>;
   body: any;
   //#endregion
 
@@ -23,6 +24,7 @@ export class Requester {
   ) {
     this.#url = new URL(request.url);
     this.#query = parseQuery(this.url);
+    this.#cookies = parseCookie(request.headers.get('Cookie') || '');
     this.#params = {};
     this.#data = {};
     this.#method = stringToHTTPVerbs(request.method);
@@ -37,29 +39,35 @@ export class Requester {
     return reqer;
   };
 
-  get method(): HTTPVerbs {
+  get method() {
     return this.#method;
   }
-  get url(): URL {
-    return this.#url;
-  }
-  get path(): string {
-    return this.#url.pathname;
-  }
-  get query(): { [key: string]: string } {
-    return this.#query;
-  }
-  get params(): { [key: string]: string } {
-    return this.#params;
-  }
-  get data(): { [key: string]: any } {
-    return { ...this.#data };
+
+  get cookies() {
+    return this.#cookies;
   }
 
-  set params(obj: { [key: string]: string }) {
+  get url() {
+    return this.#url;
+  }
+  get path() {
+    return this.#url.pathname;
+  }
+  get query() {
+    return this.#query;
+  }
+  get params() {
+    return this.#params;
+  }
+  get data() {
+    return this.#data;
+  }
+
+  set params(obj: Record<string, any>) {
     this.#params = { ...this.#params, ...obj };
   }
-  set data(obj: { [key: string]: any }) {
+
+  set data(obj: Record<string, any>) {
     this.#data = { ...this.#data, ...obj };
   }
 }

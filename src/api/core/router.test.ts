@@ -6,7 +6,7 @@ import { Router } from './router';
 
 describe('Assumptions', () => {
   it('iterating on enum', () => {
-    const methods = [];
+    const methods: string[] = [];
     for (const verb in HTTPVerbs) methods.push(verb);
     expect(methods.every((e) => typeof e == 'string')).toBeTruthy();
     expect(methods.includes(HTTPVerbs.ALL)).toBeTruthy();
