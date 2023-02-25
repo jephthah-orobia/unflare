@@ -1,24 +1,22 @@
-import { CookieOptions } from '../interfaces/cookie-options';
 import mime from 'mime-types';
+import { CookieSerializeOptions } from 'cookie';
+
+const DEFAULT_CookieOptions = {
+  encode: encodeURIComponent,
+  httpOnly: false,
+  path: '/',
+  secure: false,
+  signed: false,
+};
 
 export class Responder {
-  #defaultCookieOptions: CookieOptions;
   isDone: boolean = false;
   statusCode: number | undefined;
   statusText: string | undefined;
   headers: Map<string, string> = new Map<string, string>();
   body: any;
 
-  constructor(private host: string) {
-    this.#defaultCookieOptions = {
-      domain: this.host,
-      encode: encodeURIComponent,
-      httpOnly: false,
-      path: '/',
-      secure: false,
-      signed: false,
-    };
-  }
+  constructor(private host: string) {}
 
   get response() {
     if (!this.isDone) return null;
@@ -71,8 +69,12 @@ export class Responder {
    * - `signed`:	`Boolean`	Indicates if the cookie should be signed.
    * - `sameSite`:	Boolean or String	Value of the “SameSite” Set-Cookie attribute. For more information, [click here](https://tools.ietf.org/html/draft-ietf-httpbis-cookie-same-site-00#section-4.1.1).
    */
-  cookie(name: string, value: string, options: CookieOptions): Responder {
-    const opts = { ...this.#defaultCookieOptions, ...options };
+  cookie(
+    name: string,
+    value: string,
+    options: CookieSerializeOptions
+  ): Responder {
+    const opts = { ...DEFAULT_CookieOptions, domain: this.host, ...options };
     //TODO
     return this;
   }

@@ -41,6 +41,8 @@
     "wrangler": "^2.10.0"
   },
   "dependencies": {
+    "@types/cookie": "^0.5.1",
+    "cookie": "^0.5.0",
     "mime-types": "^2.1.35"
   }
 }
