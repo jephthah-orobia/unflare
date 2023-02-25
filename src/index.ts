@@ -8,7 +8,6 @@ export * from './api/core/router';
 
 export * from './api/enums/http-verbs';
 
-export * from './api/interfaces/cookie-options';
 export * from './api/interfaces/error-handler';
 export * from './api/interfaces/middleware';
 export * from './api/interfaces/route-handler';
