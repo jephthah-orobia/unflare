@@ -1,13 +1,5 @@
 import mime from 'mime-types';
-import { CookieSerializeOptions } from 'cookie';
-
-const DEFAULT_CookieOptions = {
-  encode: encodeURIComponent,
-  httpOnly: false,
-  path: '/',
-  secure: false,
-  signed: false,
-};
+import { CookieSerializeOptions, serialize as serializeCookie } from 'cookie';
 
 export class Responder {
   isDone: boolean = false;
@@ -72,10 +64,17 @@ export class Responder {
   cookie(
     name: string,
     value: string,
-    options: CookieSerializeOptions
+    options?: CookieSerializeOptions
   ): Responder {
-    const opts = { ...DEFAULT_CookieOptions, domain: this.host, ...options };
-    //TODO
+    let token;
+    if (options) {
+      options.domain = this.host;
+      token = serializeCookie(name, value, options);
+    } else token = serializeCookie(name, value);
+    if (this.headers.has('Set-Cookie')) {
+      const currentCookies = this.headers.get('Set-Cookie');
+      this.headers.set('Set-Cookie', currentCookies + ',' + token);
+    } else this.headers.set('Set-Cookie', token);
     return this;
   }
 }
