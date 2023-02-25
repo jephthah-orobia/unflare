@@ -1,4 +1,5 @@
 import { CookieOptions } from '../interfaces/cookie-options';
+import mime from 'mime-types';
 
 export class Responder {
   #defaultCookieOptions: CookieOptions;
@@ -50,7 +51,7 @@ export class Responder {
   }
 
   json(obj: any) {
-    this.headers.set('Content-Type', 'application/json');
+    this.headers.set('Content-Type', mime.contentType('json') as string);
     this.send(JSON.stringify(obj));
   }
 
