@@ -1,6 +1,6 @@
 import mime from 'mime-types';
 import { typeIs } from './type-is';
-import queryString from 'node:querystring';
+import queryString from 'querystring';
 
 export async function parseBody(req: Request): Promise<any> {
   if (!req.body) return null;
@@ -39,8 +39,13 @@ export async function parseBody(req: Request): Promise<any> {
   if (typeIs(req, /application\/json/i))
     return JSON.parse(textdecoder.decode(bodyUInt8));
 
-  if (typeIs(req, /urlencoded/))
-    return queryString.decode(textdecoder.decode(bodyUInt8));
+  if (typeIs(req, /urlencoded/)) {
+    const query = textdecoder.decode(bodyUInt8);
+    const fakeUrl = new URLSearchParams(query);
+    const newObj: Record<string, string> = {};
+    for (const [key, val] of fakeUrl) newObj[key] = val;
+    return newObj;
+  }
 
   return bodyUInt8;
 }

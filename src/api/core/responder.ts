@@ -1,4 +1,3 @@
-import mime from 'mime-types';
 import { CookieSerializeOptions, serialize as serializeCookie } from 'cookie';
 
 export class Responder {
@@ -41,7 +40,7 @@ export class Responder {
   }
 
   json(obj: any) {
-    this.headers.set('Content-Type', mime.contentType('json') as string);
+    this.headers.set('Content-Type', 'application/json; charset=UTF-8');
     this.send(JSON.stringify(obj));
   }
 

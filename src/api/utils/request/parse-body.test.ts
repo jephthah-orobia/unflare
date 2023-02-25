@@ -1,7 +1,6 @@
 import { describe, expect, it } from 'vitest';
 import { parseBody } from './parse-body';
 import mime from 'mime-types';
-import queryString from 'node:querystring';
 
 describe('parseBody', () => {
   it('should return null if stream is empty', async () => {
@@ -50,18 +49,15 @@ describe('parseBody', () => {
 
   it('should return an object if the stream is an application/x-www-form-urlencoded', async () => {
     const obj = { email: 'test@test.test', password: 'Abc123' };
-
+    const bod = new URLSearchParams(obj).toString();
     const req = new Request('https://example.com/users', {
       method: 'POST',
-      body: queryString.encode(obj),
+      body: bod,
     });
 
     const encoder = new TextEncoder();
     req.headers.set('Content-Type', 'application/x-www-form-urlencoded');
-    req.headers.set(
-      'Content-Length',
-      encoder.encode(queryString.encode(obj)).length.toString()
-    );
+    req.headers.set('Content-Length', encoder.encode(bod).length.toString());
     const body = await parseBody(req);
     expect(body).toHaveProperty('email');
     expect(body.email).toStrictEqual(obj.email);

@@ -1,7 +1,6 @@
 import { describe, it, expect } from 'vitest';
 import { Responder } from './responder';
 import { serialize } from 'cookie';
-import mime from 'mime-types';
 
 describe('Responder', () => {
   describe('(Constructor)', () => {
@@ -91,7 +90,7 @@ describe('Responder', () => {
       const resp = res.response;
       const contentType = resp.headers.get('Content-Type');
       expect(contentType).not.toBeNull();
-      expect(contentType).toBe(mime.contentType('json'));
+      expect(contentType).toBe('application/json; charset=UTF-8');
     });
   });
 
