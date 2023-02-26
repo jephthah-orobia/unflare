@@ -64,7 +64,8 @@ app.get('/', function (req: Requester, res: Responder) {
 
 app.post('/users', function (req: Requester, res: Responder) {
   if (!req.body.name) return res.status(401).send('name');
-  res.cookie('user', JSON.stringify({ name: req.body.name, id: 12451231521 }));
+  const id = crypto.randomUUID();
+  res.cookie('user', JSON.stringify({ name: req.body.name, id }));
   res.status(302, 'Redirecting').headers.set('Location', '/');
   res.send();
 });
