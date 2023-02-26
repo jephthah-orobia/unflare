@@ -2,9 +2,7 @@
 
 Just another [express](https://expressjs.com/)-inspired web framework for [cloudflare's workers](https://workers.cloudflare.com/).
 
-[![NPM Version][npm-version-image]][npm-url]
-[![NPM Install Size][npm-install-size-image]][npm-install-size-url]
-[![NPM Downloads][npm-downloads-image]][npm-downloads-url]
+![npm bundle size](https://img.shields.io/bundlephobia/min/unflare?label=install%20size&style=plastic) ![npm version](https://img.shields.io/npm/v/unflare?style=plastic) ![npm downloads](https://img.shields.io/npm/dm/unflare?style=plastic)
 
 ## Examples
 
