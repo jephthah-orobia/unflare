@@ -1,7 +1,6 @@
 import { describe, it, expect } from 'vitest';
 import { HTTPVerbs } from '../enums/http-verbs';
 import { Requester } from './requester';
-import mime from 'mime-types';
 import { serialize } from 'cookie';
 
 describe('Requester Class', () => {
@@ -41,7 +40,7 @@ describe('Requester Class', () => {
       });
 
       const encoder = new TextEncoder();
-      req.headers.set('Content-Type', mime.contentType('json') as string);
+      req.headers.set('Content-Type', 'application/json');
       req.headers.set(
         'Content-Length',
         encoder.encode(JSON.stringify(obj)).length.toString()
