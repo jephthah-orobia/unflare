@@ -1,14 +1,21 @@
 import { CookieSerializeOptions, serialize as serializeCookie } from 'cookie';
 
 export class Responder {
-  isDone: boolean = false;
+  #isDone: boolean = false;
   statusCode: number | undefined;
   statusText: string | undefined;
   headers: Map<string, string> = new Map<string, string>();
-  body: any;
+  #body: string | Uint8Array | any;
 
   constructor(private host: string) {}
 
+  get body() {
+    return this.#body;
+  }
+
+  get isDone() {
+    return this.#isDone;
+  }
   get response() {
     if (!this.isDone) return null;
     let init: { status?: number; statusText?: string } = {},
@@ -16,8 +23,8 @@ export class Responder {
     if (this.statusCode || this.statusText) {
       if (this.statusCode) init.status = this.statusCode;
       if (this.statusText) init.statusText = this.statusText;
-      res = new Response(this.body, init);
-    } else res = new Response(this.body);
+      res = new Response(this.#body, init);
+    } else res = new Response(this.#body);
 
     for (const [key, value] of this.headers) res.headers.set(key, value);
 
@@ -32,8 +39,8 @@ export class Responder {
 
   send(body?: any) {
     if (!this.isDone) {
-      this.body = body;
-      this.isDone = true;
+      this.#body = body;
+      this.#isDone = true;
     } else {
       console.error('Can not change response once sent.');
     }
@@ -75,5 +82,35 @@ export class Responder {
       this.headers.set('Set-Cookie', currentCookies + ',' + token);
     } else this.headers.set('Set-Cookie', token);
     return this;
+  }
+
+  write(content: string) {
+    if (this.isDone) {
+      console.error(
+        'Cannot change value of reponse body once send() or end() is called.'
+      );
+      return;
+    }
+    if (!this.#body || typeof this.#body != 'string') this.#body = '';
+    this.#body += content;
+  }
+
+  writeLine(content: string) {
+    if (this.isDone) {
+      console.error(
+        'Cannot change value of reponse body once send() or end() is called.'
+      );
+      return;
+    }
+    if (!this.#body || typeof this.#body != 'string') this.#body = '';
+    this.#body += content + '\n';
+  }
+
+  end() {
+    if (this.isDone) {
+      console.error('.end() or .send() was already called before.');
+      return;
+    }
+    this.#isDone = true;
   }
 }

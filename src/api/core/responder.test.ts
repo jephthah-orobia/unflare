@@ -131,4 +131,52 @@ describe('Responder', () => {
       );
     });
   });
+
+  describe('.end()', () => {
+    it('should set .isDone to true', () => {
+      const res = new Responder('example.com');
+      expect(res.isDone).toBe(false);
+      res.end();
+      expect(res.isDone).toBe(true);
+    });
+  });
+
+  describe('.write()', () => {
+    it('should append content of the body', () => {
+      const res = new Responder('example.com');
+      expect(res.isDone).toBe(false);
+      res.write('Welcome to');
+      expect(res.body).toBe('Welcome to');
+      res.write(' unflare Page');
+      expect(res.body).toBe('Welcome to unflare Page');
+    });
+    it('should not do anything to .body when .send or .end or the likes are called', () => {
+      const res = new Responder('example.com');
+      expect(res.isDone).toBe(false);
+      res.write('Welcome to');
+      expect(res.body).toBe('Welcome to');
+      res.end();
+      res.write(' unflare Page');
+      expect(res.body).toBe('Welcome to');
+    });
+  });
+
+  describe('.writeLine()', () => {
+    it('should append a new line to the content of the body', () => {
+      const res = new Responder('example.com');
+      expect(res.isDone).toBe(false);
+      res.writeLine('Welcome to');
+      expect(res.body).toBe('Welcome to\n');
+      res.writeLine(' unflare Page');
+      expect(res.body).toBe('Welcome to\n unflare Page\n');
+    });
+    it('should not do anything to .body when .send or .end or the likes are called', () => {
+      const res = new Responder('example.com');
+      expect(res.isDone).toBe(false);
+      res.writeLine('Welcome to');
+      expect(res.body).toBe('Welcome to\n');
+      res.end();
+      expect(res.body).toBe('Welcome to\n');
+    });
+  });
 });
