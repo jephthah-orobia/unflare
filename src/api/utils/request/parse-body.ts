@@ -1,6 +1,4 @@
-import mime from 'mime-types';
 import { typeIs } from './type-is';
-import queryString from 'querystring';
 
 export async function parseBody(req: Request): Promise<any> {
   if (!req.body) return null;

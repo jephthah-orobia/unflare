@@ -1,6 +1,5 @@
 import { describe, expect, it } from 'vitest';
 import { parseBody } from './parse-body';
-import mime from 'mime-types';
 
 describe('parseBody', () => {
   it('should return null if stream is empty', async () => {
@@ -38,7 +37,7 @@ describe('parseBody', () => {
     });
 
     const encoder = new TextEncoder();
-    req.headers.set('Content-Type', mime.contentType('json') as string);
+    req.headers.set('Content-Type', 'application/json; charset=utf-8');
     req.headers.set(
       'Content-Length',
       encoder.encode(JSON.stringify(obj)).length.toString()
