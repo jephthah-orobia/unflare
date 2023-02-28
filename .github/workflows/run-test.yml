@@ -4,24 +4,20 @@ on:
   - pull_request
 
 jobs:
-  tests:
+  test:
+    name: Unit and Integration Testing
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v3
 
-      - name: Clean install dependencies
+      - name: Unit Testing
         run: |
           npm install
-          cd integration-testing/sign-in-cookie/
-          npm install
-
-      - name: Build using tsc
-        run: npm run build:first
-
-      - name: Unit Testing
-        run: npm run test:once
+          npm run test:once
 
       - name: Integration Testing (sign-in-cookie)
         run: |
+          npm run build:first
           cd integration-testing/sign-in-cookie/
+          npm install
           npm run test:once
