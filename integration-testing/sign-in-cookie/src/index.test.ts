@@ -81,7 +81,7 @@ const cookieOfSignIn = (
   userName: string,
   id: string | null = null
 ): { cookie: string; id: string } => {
-  id = id || crypto?.randomUUID() || '1243u13wiefha';
+  id = id || !crypto ? '1243u13wiefha' : crypto?.randomUUID();
   return {
     cookie: serialize('user', JSON.stringify({ name: userName, id: id })),
     id,
