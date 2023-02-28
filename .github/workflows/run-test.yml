@@ -8,7 +8,17 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v3
-      - run: npm install
-      - run: npm run test:once
-      - run: cd test*/test*/ & npm install
-      - run: cd test*/test*/ & npm run test:once
+      - name: Clean install dependencies and build
+        run: |
+          npm install
+          cd integration-testing
+          cd testing-unflare
+          npm install
+      - name: Running Unit Test
+        run: npm run test:once
+      - name: Running Integration Tests
+        run: /
+          npm run build:first
+          cd integration-testing
+          cd testing-unflare
+          npm run test:once
