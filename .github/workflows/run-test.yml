@@ -9,19 +9,19 @@ jobs:
     steps:
       - uses: actions/checkout@v3
 
-      - name: Clean install dependencies and build
+      - name: Clean install dependencies
         run: |
           npm install
-          npm run build:first
-          cd integration-testing
-          cd sign-in-cookie
+          cd integration-testing/sign-in-cookie/
           npm install
+
+      - name: Build using tsc
+        run: npm run build:first
 
       - name: Unit Testing
         run: npm run test:once
 
       - name: Integration Testing (sign-in-cookie)
-        run: /
-          cd integration-testing
-          cd sign-in-cookie
+        run: |
+          cd integration-testing/sign-in-cookie/
           npm run test:once
