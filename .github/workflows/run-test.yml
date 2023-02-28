@@ -7,6 +7,6 @@ jobs:
   tests:
     runs-on: ubuntu-latest
     steps:
-      - uses: action/checkout@v3
+      - uses: actions/checkout@v3
       - run: npm install & npm run test:ci
       - run: cd test*/test* & npm run test:ci
