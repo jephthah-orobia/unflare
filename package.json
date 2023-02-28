@@ -8,10 +8,13 @@
   ],
   "scripts": {
     "test": "vitest",
-    "test:ci": "vitest run",
+    "test:once": "vitest run",
     "clean": "del-cli dist",
-    "build": "npm run clean && tsc",
-    "simulation_test": "build & cd test* & cd test* & npm run test"
+    "build": "npm run clean & tsc",
+    "test:demo": "npm run build & cd test*/test* & npm run test",
+    "test:demo:once": "npm run build & cd test*/test* & npm run test:once",
+    "test:demo:ci": "npm run build & cd test*/test* & npm install & npm run test:once",
+    "test:ci": "npm install & npm run test:once & npm run test:demo:ci"
   },
   "keywords": [
     "unflare",
