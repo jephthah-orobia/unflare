@@ -8,6 +8,7 @@
   ],
   "scripts": {
     "test": "vitest",
+    "test:ci": "vitest run",
     "clean": "del-cli dist",
     "build": "npm run clean && tsc",
     "simulation_test": "build & cd test* & cd test* & npm run test"
