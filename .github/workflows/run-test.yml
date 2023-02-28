@@ -7,15 +7,23 @@ jobs:
   test:
     name: Unit and Integration Testing
     runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        node-version: [14.x, 15.x, 16.x, 17.x, 18.x, 19.x]
     steps:
       - uses: actions/checkout@v3
 
-      - name: Unit Testing
+      - name: Use Node.js ${{ matrix.node-version }}
+        uses: actions/setup-node@v3
+        with:
+          node-version: ${{ matrix.node-version }}
+
+      - name: Unit Testing ${{ matrix.node-version }}
         run: |
           npm install
           npm run test:once
 
-      - name: Integration Testing (sign-in-cookie)
+      - name: Integration Testing (sign-in-cookie) ${{ matrix.node-version }}
         run: |
           npm run build:first
           cd integration-testing/sign-in-cookie/
