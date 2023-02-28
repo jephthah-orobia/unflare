@@ -8,17 +8,20 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v3
+
       - name: Clean install dependencies and build
         run: |
           npm install
-          cd integration-testing
-          cd testing-unflare
-          npm install
-      - name: Running Unit Test
-        run: npm run test:once
-      - name: Running Integration Tests
-        run: /
           npm run build:first
           cd integration-testing
-          cd testing-unflare
+          cd sign-in-cookie
+          npm install
+
+      - name: Unit Testing
+        run: npm run test:once
+
+      - name: Integration Testing (sign-in-cookie)
+        run: /
+          cd integration-testing
+          cd sign-in-cookie
           npm run test:once
