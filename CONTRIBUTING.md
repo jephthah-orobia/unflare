@@ -1,11 +1,11 @@
 # GUIDELINES ON CONTRIBUTING
 
 1. commit your changes on a new branch.
-2. make sure that all test pass including the simulation test:
+2. make sure that all test pass including the demo test:
 
 ```
-$ npm run test
-$ npm run simultation_test
+$ npm run test:once
+$ npm run test:demo:once
 ```
 
 3. Push the branch.
