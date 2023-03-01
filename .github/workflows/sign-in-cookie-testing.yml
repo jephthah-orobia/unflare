@@ -19,11 +19,6 @@ jobs:
         with:
           node-version: ${{ matrix.node-version }}
 
-      - name: Unit Testing ${{ matrix.node-version }}
-        run: |
-          npm install
-          npm run test:once
-
       - name: Integration Testing (sign-in-cookie) ${{ matrix.node-version }}
         run: |
           npm run build:first
