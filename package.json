@@ -2,7 +2,7 @@
   "name": "unflare",
   "version": "1.1.2",
   "engines": {
-    "node": ">=18"
+    "node": "18.x|19.x"
   },
   "main": "dist/index.js",
   "types": "dist/index.d.ts",
