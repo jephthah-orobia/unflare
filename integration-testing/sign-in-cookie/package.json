@@ -10,7 +10,6 @@
   "private": true,
   "scripts": {
     "start": "wrangler dev",
-    "deploy": "wrangler publish",
     "test": "vitest",
     "test:once": "vitest run"
   },
