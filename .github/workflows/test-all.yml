@@ -26,10 +26,11 @@ jobs:
       - name: Output dirs in integration-testing
         id: outputdir
         run: |
+          GHOUTPUT="demo=["
           cd integration-testing
-          echo "demo=[" >> "$GITHUB_OUTPUT"
-          for dir in */; do echo "\"$dir\", " >> "$GITHUB_OUTPUT"; done
-          echo "]" >> "$GITHUB_OUTPUT"
+          for dir in */; do GHOUT="$GHOUTPUT \"$dir\", "; done
+          GHOUTPUT="$GHOUTPUT]"
+          echo $GHOUTPUT >> "$GITHUB_OUTPUT"
 
   test:
     name: Unit and Integration Testing
