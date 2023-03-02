@@ -2,7 +2,7 @@
   "name": "unflare",
   "version": "1.1.2",
   "engines": {
-    "node": "18.x|19.x"
+    "node": ">=18"
   },
   "main": "dist/index.js",
   "types": "dist/index.d.ts",
@@ -11,10 +11,12 @@
   ],
   "scripts": {
     "test": "vitest",
-    "test:once": "vitest run",
     "clean": "del-cli dist",
-    "build": "npm run clean & tsc",
-    "build:first": "tsc"
+    "build": "npm run clean && tsc",
+    "build:first": "tsc",
+    "test:ci": "vitest run",
+    "it:test": "npm run build && cd integration-testing && chmod u+x testAll.sh && bash ./testAll.sh",
+    "test:all": "npm run test:ci & npm run it:test"
   },
   "keywords": [
     "unflare",

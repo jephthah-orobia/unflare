@@ -1,0 +1,65 @@
+name: Run-All-Test
+
+on:
+  - pull_request
+
+jobs:
+  unit_test:
+    name: Run Unit Test 1
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        node-version: [18.x, 19.x]
+    outputs:
+      it_names: ${{ steps.outputdir.outputs.demo }}
+    steps:
+      - uses: actions/checkout@v3
+      - name: Use Node.js ${{ matrix.node-version }}
+        uses: actions/setup-node@v3
+        with:
+          node-version: ${{ matrix.node-version }}
+      - name: Install Dependencies
+        run: npm install
+      - name: Run Unit Test against Node v${{ matrix.node-version }}
+        run: npm run test:ci
+      - name: Output dirs in integration-testing
+        id: outputdir
+        run: |
+          GHOUTPUT="demo=["
+          cd integration-testing
+          for dir in */; do GHOUTPUT="$GHOUTPUT \"$dir\", "; done
+          GHOUTPUT="$GHOUTPUT]"
+          echo $GHOUTPUT
+          echo $GHOUTPUT >> "$GITHUB_OUTPUT"
+
+  test:
+    name: Unit and Integration Testing
+    needs: unit_test
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        node-version: [18.x, 19.x]
+        demo: ${{ fromJson(needs.unit_test.outputs.it_names)}}
+    steps:
+      - uses: actions/checkout@v3
+
+      - name: Use Node.js ${{ matrix.node-version }}
+        uses: actions/setup-node@v3
+        with:
+          node-version: ${{ matrix.node-version }}
+
+      - name: Install dependencies for ${{ matrix.demo }} on ${{ matrix.node-version }}
+        run: |
+          npm install
+          npm run build:first
+          cd integration-testing
+          cd ${{ matrix.demo }}
+          npm install
+
+      - name: Run Integration Tests (${{ matrix.demo }} against ${{ matrix.node-version }})
+        run: |
+          cd integration-testing
+          cd ${{ matrix.demo }}
+          npm run test:once

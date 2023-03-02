@@ -1,12 +1,11 @@
 # GUIDELINES ON CONTRIBUTING
 
-1. commit your changes on a new branch.
-2. make sure that all test pass including the demo test:
+1. Commit your changes on a new branch.
+2. Make sure that all test pass including the demo test:
 
-```
-$ npm run test:once
-$ npm run test:demo:once
-```
+   ```
+   $ npm run test:all
+   ```
 
 3. Push the branch.
 4. Create a pull-request.
