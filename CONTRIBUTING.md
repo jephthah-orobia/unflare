@@ -4,7 +4,7 @@
 2. Make sure that all test pass including the demo test:
 
    ```
-   $ npm run test:all:ci
+   $ npm run test:all
    ```
 
 3. Push the branch.

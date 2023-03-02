@@ -15,7 +15,8 @@
     "build": "npm run clean && tsc",
     "build:first": "tsc",
     "test:ci": "vitest run",
-    "it:test:ci": "npm run build && cd integration-testing && chmod u+x testAll.sh && bash ./testAll.sh"
+    "it:test": "npm run build && cd integration-testing && chmod u+x testAll.sh && bash ./testAll.sh",
+    "test:all": "npm run test:ci & npm run it:test"
   },
   "keywords": [
     "unflare",
