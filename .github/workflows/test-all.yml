@@ -20,4 +20,11 @@ jobs:
           node-version: ${{ matrix.node-version }}
 
       - name: Testing against ${{ matrix.node-version }}
-        run: npm run test:all:ci
+        run: |
+          npm install
+          npm run build:first
+          cd integration-testing
+          for dir in */; do cd dir && npm run install && cd ..; done
+          cd ..
+          npm run test:once
+          npm run it:test:ci

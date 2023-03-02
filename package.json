@@ -13,10 +13,9 @@
     "test": "vitest",
     "clean": "del-cli dist",
     "build": "npm run clean && tsc",
-    "it:test": "npm run build && cd integration-testing && chmod u+x testAll.sh && bash ./testAll.sh",
-    "test:once": "vitest run",
     "build:first": "tsc",
-    "test:all:ci": "npm ci && vitest run && npm run build:first && cd integration-testing && chmod u+x testAll.ci.sh && bash ./testAll.ci.sh"
+    "test:ci": "vitest run",
+    "it:test:ci": "npm run build && cd integration-testing && chmod u+x testAll.sh && bash ./testAll.sh"
   },
   "keywords": [
     "unflare",
