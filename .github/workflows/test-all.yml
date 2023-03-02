@@ -56,7 +56,7 @@ jobs:
           npm run build:first
           cd integration-testing
           cd ${{ matrix.demo }}
-          npm run install
+          npm install
 
       - name: Run Integration Tests (${{ matrix.demo }} against ${{ matrix.node-version }})
         run: |
