@@ -45,22 +45,17 @@ export class Unflare extends Router {
     ctx?.passThroughOnException();
     const reqer = await Requester.fromRequest(req, this.strict);
     const reser = new Responder(reqer.url.host);
-    if (this.canHandle(reqer)) {
+    try {
       await this.handle(reqer, reser);
-      if (reser.isDone) return reser.response!;
-      else await this.handle(reqer, reser, new Error('Route Not Found Error'));
-      if (reser.isDone) return reser.response!;
-      else
-        return new Response('Internal Server Error', {
-          status: 500,
-          statusText: 'Server Error',
-        });
-    } else {
-      return new Response('Page not found!', {
-        status: 404,
-        statusText: 'Not Found',
-      });
+    } catch (err: any) {
+      this.handleError(err, reqer, reser);
     }
+    if (reser.isDone) return reser.response!;
+    else
+      return new Response('Internal Server Error', {
+        status: 500,
+        statusText: 'Server Error',
+      });
   }
   /* async scheduled(event: ScheduledEvent, env: Env, ctx: ExecutionContext) {
     //ctx.waitUntil(doSomeTaskOnASchedule());

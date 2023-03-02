@@ -11,7 +11,7 @@ import {
   isMiddleware,
   Middleware,
 } from '../interfaces/middleware';
-import { RequestHandler } from '../interfaces/request-handler';
+import { RequestHandler } from './request-handler';
 import {
   AsyncRouteHandler,
   isAsyncRouteHandler,
@@ -50,7 +50,7 @@ type MidwareOrErrorHandler =
   | ErrorHandler
   | AsyncErrorHandler;
 
-export class Route implements RequestHandler {
+export class Route implements RequestHandler<Handler> {
   #methods: HTTPVerbs[] = [];
   #handlers: Handler[] = [];
   #req: Requester | undefined;
