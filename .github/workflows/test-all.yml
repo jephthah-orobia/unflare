@@ -28,7 +28,7 @@ jobs:
         run: |
           GHOUTPUT="demo=["
           cd integration-testing
-          for dir in */; do GHOUT="$GHOUTPUT \"$dir\", "; done
+          for dir in */; do GHOUTPUT="$GHOUTPUT \"$dir\", "; done
           GHOUTPUT="$GHOUTPUT]"
           echo $GHOUTPUT
           echo $GHOUTPUT >> "$GITHUB_OUTPUT"
