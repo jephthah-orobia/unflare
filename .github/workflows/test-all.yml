@@ -26,5 +26,5 @@ jobs:
           cd integration-testing
           for dir in */; do cd dir && npm run install && cd ..; done
           cd ..
-          npm run test:once
+          npm run test:ci
           npm run it:test:ci
