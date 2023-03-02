@@ -1,6 +1,9 @@
 {
   "name": "customerrorhandling",
   "version": "0.0.0",
+  "dependencies": {
+    "unflare": "file:../.."
+  },
   "devDependencies": {
     "@cloudflare/workers-types": "^4.20230228.0",
     "typescript": "^4.9.5",
@@ -11,6 +14,7 @@
   "scripts": {
     "start": "wrangler dev",
     "deploy": "wrangler publish",
-    "test": "vitest"
+    "test": "vitest",
+    "test:once": "vitest run"
   }
 }
