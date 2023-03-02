@@ -34,6 +34,7 @@ jobs:
 
   test:
     name: Unit and Integration Testing
+    needs: unit_test
     runs-on: ubuntu-latest
     strategy:
       fail-fast: false
