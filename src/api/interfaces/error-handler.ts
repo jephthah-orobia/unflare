@@ -12,25 +12,3 @@ export type ErrorHandler = (
 export const isErrorHandler = (obj: any): obj is ErrorHandler => {
   return obj.constructor.name === 'Function' && obj.length == 4;
 };
-
-export const isSyncErrorHandler = (
-  obj: any
-): obj is (
-  err: any,
-  req: Requester,
-  res: Responder,
-  next: NextFunction
-) => void => {
-  return obj.constructor.name === 'Function' && obj.length == 4;
-};
-
-export const isAsyncErrorHandler = (
-  obj: any
-): obj is (
-  err: any,
-  req: Requester,
-  res: Responder,
-  next: NextFunction
-) => Promise<void> => {
-  return obj.constructor.name === 'AsyncFunction' && obj.length == 4;
-};

@@ -8,21 +8,5 @@ export type RouteHandler = {
 };
 
 export const isRouteHandler = (obj: any): obj is RouteHandler => {
-  return obj.constructor.name === 'Function' && obj.length === 2;
-};
-export const isSyncRouteHandler = (
-  obj: any
-): obj is {
-  (req: Requester, res: Responder): void;
-  method: HTTPVerbs;
-} => {
-  return obj.constructor.name === 'Function' && obj.length === 2;
-};
-export const isAsyncRouteHandler = (
-  obj: any
-): obj is {
-  (req: Requester, res: Responder): Promise<void>;
-  method: HTTPVerbs;
-} => {
-  return obj.constructor.name === 'AsyncFunction' && obj.length === 2;
+  return typeof obj === 'function' && obj.length === 2;
 };

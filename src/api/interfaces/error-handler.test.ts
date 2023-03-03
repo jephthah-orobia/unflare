@@ -1,5 +1,5 @@
 import { describe, it, expect } from 'vitest';
-import { isErrorHandler, isAsyncErrorHandler } from './error-handler';
+import { isErrorHandler } from './error-handler';
 
 describe('isErrorHandler test', () => {
   it('should return false for other types', () => {
@@ -21,28 +21,5 @@ describe('isErrorHandler test', () => {
 
     expect(isErrorHandler(errorH1)).toStrictEqual(true);
     expect(isErrorHandler(errorH2)).toStrictEqual(true);
-  });
-});
-
-describe('isAsyncErrorHandler test', () => {
-  it('should return false for other types', () => {
-    const aNumber = 3;
-    const aStr = 'asdg';
-    const aObj = { someProp: 'asdf' };
-    const aBool = false;
-    const aAsyncFunWith4Params = (a: any, b: any, c: any, d: any) => {};
-
-    expect(isAsyncErrorHandler(aNumber)).toStrictEqual(false);
-    expect(isAsyncErrorHandler(aStr)).toStrictEqual(false);
-    expect(isAsyncErrorHandler(aObj)).toStrictEqual(false);
-    expect(isAsyncErrorHandler(aBool)).toStrictEqual(false);
-    expect(isAsyncErrorHandler(aAsyncFunWith4Params)).toStrictEqual(false);
-  });
-  it('should return true for ErrorHandlers', () => {
-    const errorH1 = async (a: any, b: any, c: any, d: any) => {};
-    const errorH2 = async (a: any, b: any, c: any, d: any) => {};
-
-    expect(isAsyncErrorHandler(errorH1)).toStrictEqual(true);
-    expect(isAsyncErrorHandler(errorH2)).toStrictEqual(true);
   });
 });
