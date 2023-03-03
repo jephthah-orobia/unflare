@@ -3,12 +3,11 @@ import { RequestHandler } from './request-handler';
 
 describe('class RequestHandler', () => {
   describe('constructor()', () => {
-    it('should throw an error', () => {
+    it('should throw an error if instantiated without being extended', () => {
       //@ts-expect-error
-      expect(new RequestHandler()).toThrowError();
+      expect(() => new RequestHandler()).toThrowError();
     });
   });
-  describe.todo('tryToHandle()');
-  describe.todo('handleError()');
-  describe.todo('routeOfPath()');
 });
+
+// most of this class' functionality are on Route and Router, hence, test are done there.
