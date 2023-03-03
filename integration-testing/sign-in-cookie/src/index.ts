@@ -21,7 +21,7 @@ export interface Env {
   // Example binding to a Service. Learn more at https://developers.cloudflare.com/workers/runtime-apis/service-bindings/
   // MY_SERVICE: Fetcher;
 }
-import { Unflare, Requester, Responder } from '../../../dist';
+import { Unflare, Requester, Responder } from 'unflare';
 
 export const app = new Unflare();
 
