@@ -81,7 +81,7 @@ describe('Route::handle()', () => {
     });
     expect(route1.canHandle(req1)).toStrictEqual(true);
     const res = new Responder('example.com');
-    expect(() => route1.handle(req1, res)).not.toThrowError();
+    expect(() => route1.tryToHandle(req1, res)).not.toThrowError();
     expect(req1.params).toStrictEqual({ id: '1234', email: 'test@test.test' });
     expect(res.isDone).toStrictEqual(true);
   });
@@ -110,7 +110,7 @@ describe('Route::handle()', () => {
 
     expect(route1.canHandle(req1)).toStrictEqual(true);
     const res = new Responder('example.com');
-    expect(() => route1.handle(req1, res)).not.toThrowError();
+    expect(() => route1.tryToHandle(req1, res)).not.toThrowError();
     expect(res.isDone).toStrictEqual(true);
     expect(await res.response.json()).toStrictEqual(bodyToSend);
   });
@@ -125,6 +125,7 @@ describe('Route::routeOfPath', () => {
   it('should return true/false according to the provided path', () => {
     expect(route1.path).toStrictEqual('/api/users');
     expect(route2.path).toStrictEqual('/api/users/:id/email/:email');
+    //@ts-ignore
     expect(pattern1.source.replaceAll('\\/', '/')).toStrictEqual('/api/users');
     expect(route3.path).toStrictEqual('/api/users');
     expect(route1.routeOfPath('/api/email')).toStrictEqual(null);

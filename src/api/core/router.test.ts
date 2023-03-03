@@ -102,7 +102,7 @@ describe('Router::handle()', () => {
     );
     expect(route1.canHandle(req1)).toStrictEqual(true);
     const res = new Responder('example.com');
-    expect(() => route1.handle(req1, res)).not.toThrowError();
+    expect(() => route1.tryToHandle(req1, res)).not.toThrowError();
     expect(req1.params).toStrictEqual({ id: '1234', email: 'test@test.test' });
     expect(res.isDone).toStrictEqual(true);
 
@@ -129,13 +129,16 @@ describe('Router::handle()', () => {
     route2.get('/users', (req: Requester, res: Responder) => {
       res.send('users here');
     });
-    await route2.handle(new Requester(req), reser1);
+    await route2.tryToHandle(new Requester(req), reser1);
+    expect(reser1.isDone).toBe(true);
     const res1 = reser1.response;
     expect(await res1?.text()).toStrictEqual('Hello World');
-    await route2.handle(new Requester(req_1), reser2);
+    await route2.tryToHandle(new Requester(req_1), reser2);
+    expect(reser2.isDone).toBe(true);
     const res2 = reser2.response;
     expect(await res2?.text()).toStrictEqual('keeser');
-    await route2.handle(new Requester(req_2), reser3);
+    await route2.tryToHandle(new Requester(req_2), reser3);
+    expect(reser3.isDone).toBe(true);
     const res3 = reser3.response;
     expect(await res3?.text()).toStrictEqual('users here');
   });
