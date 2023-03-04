@@ -22,5 +22,10 @@ export const pathToRegExp = (path: string): RegExp => {
   // prepare `pathPattern` for constructing a RexExp object
   path = path.replaceAll('/', '\\/');
   path = path.replaceAll(urlParamKeysWithColonPattern, urlParamPattern.source);
+  if (path.at(-1) === '*') {
+    path = path.substring(0, path.length - 1);
+    if (path.at(-1) === '/') path = path + '*.*';
+    else path = path + '.*';
+  }
   return new RegExp('^' + path + '$', 'i');
 };
