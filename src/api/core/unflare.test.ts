@@ -118,7 +118,7 @@ describe('fetch()', () => {
     );
 
     expect(res).toBeDefined();
-    expect(res.status).toBe(404);
+    expect(res.status).toBe(403);
     expect(await res.text()).toBe('I handled this!');
   });
 });
