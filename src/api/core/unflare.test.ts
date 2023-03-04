@@ -1,4 +1,5 @@
 import { describe, it, expect } from 'vitest';
+import { NextFunction } from '../interfaces/middleware';
 import { Requester } from './requester';
 import { Responder } from './responder';
 import { Unflare } from './unflare';
@@ -92,5 +93,32 @@ describe('fetch()', () => {
     expect(await res.text()).toStrictEqual('Hello World');
     expect(await res1.text()).toStrictEqual('keeser');
     expect(await res2.text()).toStrictEqual('users here');
+  });
+
+  it('should delegate errors to handlers if there is any', async () => {
+    const app = new Unflare();
+
+    const errorHandler = (
+      err: any,
+      req: Requester,
+      res: Responder,
+      next: NextFunction
+    ) => {
+      res.status(403).send('I handled this!');
+    };
+
+    app.get('/a-page-that-throws-an-error', () => {
+      throw new Error('This page throws an error!');
+    });
+
+    app.use(errorHandler);
+
+    const res = await app.fetch(
+      new Request('https://ex.com/a-page-that-throws-an-error')
+    );
+
+    expect(res).toBeDefined();
+    expect(res.status).toBe(404);
+    expect(await res.text()).toBe('I handled this!');
   });
 });
