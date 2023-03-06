@@ -1,7 +1,7 @@
 import { isMiddleware, Middleware } from '../interfaces/middleware';
 import { RequestHandler } from './request-handler';
 import { isRouteHandler, RouteHandler } from '../interfaces/route-handler';
-import { matchPath } from '../utils/url/path/match-path';
+import { matchPath, normalizePath } from '../utils/url/path/match-path';
 import { Requester } from './requester';
 import { HTTPVerbs } from '../enums/http-verbs';
 import { flattenArray } from '../utils/fn/flatten-array';
@@ -14,15 +14,12 @@ export class Route extends RequestHandler<RouteHandler | Middleware> {
   }
 
   routeOfPath(path: string | RegExp): Route | null {
-    const pathStr =
-      path instanceof RegExp ? path.source.replaceAll('\\/', '/') : path;
-    if (
-      this.path === pathStr ||
-      matchPath(pathStr, this.pathOrPattern!) ||
-      matchPath(this.path, path)
-    )
-      return this;
-    else return null;
+    let against: string | RegExp;
+    if (typeof this.pathOrPattern === 'string')
+      against = normalizePath(this.pathOrPattern);
+    else against = this.pathOrPattern;
+    if (typeof path === 'string') path = normalizePath(path);
+    return path === against ? this : null;
   }
 
   canHandle(req: Requester): boolean {
