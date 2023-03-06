@@ -51,7 +51,7 @@ export class Unflare extends Router {
     ctx?.passThroughOnException();
     const reqer = await Requester.fromRequest(req, this.strict);
     const reser = new Responder(reqer.url.host);
-    let err: any = 'Internal Server Error';
+    let err: any = false;
     try {
       await this.tryToHandle(reqer, reser);
     } catch (e: any) {
@@ -59,11 +59,11 @@ export class Unflare extends Router {
       err = e;
     }
     if (reser.isDone) return reser.response!;
-    else if (reser.statusCode == 404) return this.notFoundResponse;
+    else if (!err) return this.notFoundResponse;
     else
       return new Response(err, {
         status: 500,
-        statusText: 'Server Error',
+        statusText: 'Internal Server Error',
       });
   }
   /* async scheduled(event: ScheduledEvent, env: Env, ctx: ExecutionContext) {
