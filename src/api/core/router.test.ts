@@ -139,15 +139,17 @@ describe('Router::tryToHandle()', () => {
     router.get('*', (req: Requester, res: Responder) => {
       res.status(402).send(msg);
     });
+
     const responder = new Responder('example.com');
     const requester = new Requester(
       new Request('https://example.com/somepaththatmightnotexist')
     );
+
     expect(() => {
       router.tryToHandle(requester, responder);
     }).not.toThrowError();
 
-    expect(router.canHandle(requester)).toBe(false);
+    expect(router.canHandle(requester)).toBe(true);
     router.tryToHandle(requester, responder);
     const res = responder.response;
     expect(res.status).toBe(402);
