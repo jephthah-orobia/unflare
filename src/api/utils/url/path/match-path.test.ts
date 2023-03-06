@@ -98,11 +98,16 @@ describe('matchPath(string, RegExp)', () => {
     expect(matchPath('/api/users/123', pattern)).toStrictEqual(true);
   });
   it('should return true when a wildcard is used', () => {
-    const pattern = /.*/;
-    expect(matchPath('/anypath', pattern)).toBe(true);
-    expect(matchPath('/any-path', pattern)).toBe(true);
-    expect(matchPath('/any-path123.soda', pattern)).toBe(true);
-    expect(matchPath('/any-path123.soda', pattern, true)).toBe(true);
-    expect(matchPath('/any-path123.soda', pattern, false)).toBe(true);
+    const wildcard_pattern = /.*/;
+    expect(matchPath('', wildcard_pattern)).toBe(true);
+    expect(matchPath('/', wildcard_pattern)).toBe(true);
+    expect(matchPath('/anypath', wildcard_pattern)).toBe(true);
+    expect(matchPath('/any-path', wildcard_pattern)).toBe(true);
+    expect(matchPath('/any-path123.soda', wildcard_pattern)).toBe(true);
+    expect(matchPath('/any-path123.soda', wildcard_pattern, true)).toBe(true);
+    expect(matchPath('/any-path123.soda', wildcard_pattern, false)).toBe(true);
+    expect(matchPath('/any-pat/h123/.soda', wildcard_pattern, false)).toBe(
+      true
+    );
   });
 });
