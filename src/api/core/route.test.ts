@@ -1,4 +1,5 @@
 import { describe, it, expect } from 'vitest';
+import { RequestHandler } from './request-handler';
 import { Requester } from './requester';
 import { Responder } from './responder';
 import { Route } from './route';
@@ -17,6 +18,12 @@ describe('Route contrustor', () => {
     expect(route).toHaveProperty('options');
     expect(route).toHaveProperty('patch');
     expect(route).toHaveProperty('all');
+  });
+
+  it('should be an instance of RequestHandler', () => {
+    const route = new Route('/api/users');
+
+    expect(route instanceof RequestHandler).toBe(true);
   });
 });
 
@@ -135,17 +142,20 @@ describe('Route::tryToHandle()', () => {
     route.get((req: Requester, res: Responder) => {
       res.status(402).send(msg);
     });
+
     const responder = new Responder('example.com');
     const requester = new Requester(
       new Request('https://example.com/somepaththatmightnotexist', {
         method: 'GET',
       })
     );
+
+    expect(route.canHandle(requester)).toBe(false);
+
     expect(async () => {
       await route.tryToHandle(requester, responder);
     }).not.toThrowError();
 
-    expect(route.canHandle(requester)).toBe(false);
     await route.tryToHandle(requester, responder);
     const res = responder.response;
     expect(res.status).toBe(402);
