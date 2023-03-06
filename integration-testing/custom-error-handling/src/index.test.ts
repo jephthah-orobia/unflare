@@ -17,14 +17,33 @@ describe('Worker', () => {
 
   describe('get: /pathDoesNotExist', async () => {
     // this will inspect if the response was made by the custom error handler
-    it('should return a response body with words `by custom`', async () => {
+    it('should return a json response body with property error', async () => {
       const res = await worker.fetch('/pathDoesNotExist');
-      const resBody = await res.text();
+      const cont_type = res.headers.get('Content-Type');
+      expect(cont_type).not.toBeNull();
+      if (cont_type) expect(/application\/json/i.test(cont_type)).toBe(true);
+      const resBody = await res.json();
       expect(res.status).toBe(404);
-      expect(() => {
-        JSON.parse(resBody);
-      }).not.throws();
-      expect(/by custom/i.test(resBody)).toStrictEqual(true);
+      expect(resBody).not.toBeNull();
+      expect(resBody).toHaveProperty('errors');
+      expect(resBody).toBeDefined();
+      //@ts-ignore
+      expect(resBody.errors[0]).toBe('Page Not Found.');
+    });
+  });
+
+  describe('get: /path-that-throws-error', async () => {
+    // this will inspect if the response was made by the custom error handler
+    it('should return a json response body with property error`', async () => {
+      const res = await worker.fetch('/path-that-throws-error');
+      const resBody = await res.json();
+
+      expect(res.status).toBe(500);
+      expect(resBody).not.toBeNull();
+      expect(resBody).toHaveProperty('errors');
+      expect(resBody).toBeDefined();
+      //@ts-ignore
+      expect(resBody.errors[0]).toBe('An error is thrown!');
     });
   });
 });
