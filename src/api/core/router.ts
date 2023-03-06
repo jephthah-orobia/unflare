@@ -8,9 +8,14 @@ import { isErrorHandler } from '../interfaces/error-handler';
 
 export class Router extends RequestHandler<Middleware | Router | Route> {
   canHandle(req: Requester): boolean {
-    return this.handlers.some(
-      (handler) => handler instanceof RequestHandler && handler.canHandle(req)
-    );
+    if (
+      this.methods.includes(req.method) ||
+      this.methods.includes(HTTPVerbs.ALL)
+    )
+      return this.handlers.some(
+        (handler) => handler instanceof RequestHandler && handler.canHandle(req)
+      );
+    return false;
   }
 
   routeOfPath(path: string | RegExp): Route | null {
