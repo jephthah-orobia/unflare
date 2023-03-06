@@ -63,6 +63,8 @@ describe('matchPath() test', () => {
   });
   it('should return true when a wildcard is used', () => {
     const pattern = '*';
+    expect(matchPath('/', pattern)).toBe(true);
+    expect(matchPath('', pattern)).toBe(true);
     expect(matchPath('/anypath', pattern)).toBe(true);
     expect(matchPath('/any-path', pattern)).toBe(true);
     expect(matchPath('/any-path123.soda', pattern)).toBe(true);
