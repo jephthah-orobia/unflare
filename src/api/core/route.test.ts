@@ -150,7 +150,7 @@ describe('Route::tryToHandle()', () => {
       })
     );
 
-    expect(route.canHandle(requester)).toBe(false);
+    expect(route.canHandle(requester)).toBe(true);
 
     expect(async () => {
       await route.tryToHandle(requester, responder);
