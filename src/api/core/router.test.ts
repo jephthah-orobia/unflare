@@ -110,7 +110,6 @@ describe('Router::routOfPath()', () => {
     const route2copy = router.get(path2, (req, res) => {
       res.send('this should be unreachable');
     });
-    console.dir(router);
     expect(route2).toBe(route2copy);
     expect(route0).not.toBe(route2);
     expect(route1).not.toBe(route2);
