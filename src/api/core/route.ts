@@ -31,7 +31,7 @@ export class Route extends RequestHandler<RouteHandler | Middleware> {
       (this.methods.includes(req.method) ||
         this.methods.includes(HTTPVerbs.ALL))
     )
-      return matchPath(req.url.pathname, this.pathOrPattern, req.strict);
+      return matchPath(req.path, this.pathOrPattern, req.strict);
     return false;
   }
 
