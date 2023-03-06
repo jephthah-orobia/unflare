@@ -14,10 +14,7 @@ export abstract class RequestHandler<T> {
   pathOrPattern: string | RegExp = '';
   abstract canHandle(req: Requester): boolean;
   abstract use(...args: any[]): any;
-  abstract _handle_methods(
-    method: HTTPVerbs,
-    ...args: any[]
-  ): RequestHandler<T>;
+  abstract _handle_methods(method: HTTPVerbs, ...args: any[]): any;
 
   get path(): string {
     if (!this.pathOrPattern) return '';
