@@ -1,4 +1,5 @@
 import { describe, it, expect } from 'vitest';
+import { NextFunction } from '../interfaces/middleware';
 import { Requester } from './requester';
 import { Responder } from './responder';
 import { Unflare } from './unflare';
@@ -59,14 +60,6 @@ describe('Node/Environment/Engine Assumptions', () => {
   });
 });
 
-describe('listen()', () => {
-  it('should attach the unflare instance as default export of the module', () => {
-    const app = new Unflare();
-    app.listen(module);
-    expect(module.exports.default).toStrictEqual(app);
-  });
-});
-
 describe('fetch()', () => {
   it('should return a response body when called', async () => {
     const app = new Unflare();
@@ -90,8 +83,55 @@ describe('fetch()', () => {
       res.send('users here');
     });
 
-    expect(await (await app.fetch(req)).text()).toStrictEqual('Hello World');
-    expect(await (await app.fetch(req2)).text()).toStrictEqual('users here');
-    expect(await (await app.fetch(req1)).text()).toStrictEqual('keeser');
+    const res = await app.fetch(req);
+    const res1 = await app.fetch(req1);
+    const res2 = await app.fetch(req2);
+
+    expect(res).toBeDefined();
+    expect(res1).toBeDefined();
+    expect(res2).toBeDefined();
+    expect(await res.text()).toStrictEqual('Hello World');
+    expect(await res1.text()).toStrictEqual('keeser');
+    expect(await res2.text()).toStrictEqual('users here');
+  });
+
+  it('should delegate errors to handlers if there is any', async () => {
+    const app = new Unflare();
+
+    const errorHandler = (
+      err: any,
+      req: Requester,
+      res: Responder,
+      next: NextFunction
+    ) => {
+      res.status(403).send('I handled this! ' + err);
+    };
+
+    app.get('/a-page-that-throws-an-error', (req, res) => {
+      throw new Error('This page throws an error!');
+    });
+
+    app.all('*', (req, res) => {
+      throw new Error('Not Found!');
+    });
+
+    app.use(errorHandler);
+
+    const req = new Request('https://ex.com/a-page-that-throws-an-error');
+    const req1 = new Request('https://ex.com/a-page-that-does-not-exist');
+    const res = await app.fetch(req);
+
+    const res1 = await app.fetch(req1);
+
+    expect(res).toBeDefined();
+    expect(res.status).toBe(403);
+    expect(await res.text()).toBe(
+      'I handled this! Error: This page throws an error!'
+    );
+
+    expect(app.canHandle(new Requester(req1))).toBe(true);
+    expect(res1).toBeDefined();
+    expect(res1.status).toBe(403);
+    expect(await res1.text()).toBe('I handled this! Error: Not Found!');
   });
 });

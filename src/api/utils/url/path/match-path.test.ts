@@ -61,6 +61,32 @@ describe('matchPath() test', () => {
       )
     ).toBe(true);
   });
+  it('should return true when a wildcard is used', () => {
+    const pattern = '*';
+    expect(matchPath('/', pattern)).toBe(true);
+    expect(matchPath('', pattern)).toBe(true);
+    expect(matchPath('/anypath', pattern)).toBe(true);
+    expect(matchPath('/any-path', pattern)).toBe(true);
+    expect(matchPath('/any-path123.soda', pattern)).toBe(true);
+    expect(matchPath('/any-path123.soda', pattern, true)).toBe(true);
+    expect(matchPath('/any-path123.soda', pattern, false)).toBe(true);
+  });
+  it('should return appropriately when a wildcard is used', () => {
+    const pattern = '/somepath/*';
+    expect(matchPath('/anotherpath', pattern)).toBe(false);
+    expect(matchPath('/somepath', pattern)).toBe(true);
+    expect(matchPath('/somepath/', pattern)).toBe(true);
+    expect(matchPath('/somepath/asdf`', pattern)).toBe(true);
+    expect(matchPath('/somepath/asd.fa/sasd12fa', pattern, true)).toBe(true);
+    expect(matchPath('/somepath/asd.fa/sasd12fa', pattern, false)).toBe(true);
+    const pattern1 = '/somepath*';
+    expect(matchPath('/anotherpath', pattern1)).toBe(false);
+    expect(matchPath('/somepath', pattern1)).toBe(true);
+    expect(matchPath('/somepath/', pattern1)).toBe(true);
+    expect(matchPath('/somepath/asdf`', pattern1)).toBe(true);
+    expect(matchPath('/somepath/asd.fa/sasd12fa', pattern1, true)).toBe(true);
+    expect(matchPath('/somepath/asd.fa/sasd12fa', pattern1, false)).toBe(true);
+  });
 });
 
 describe('matchPath(string, RegExp)', () => {
@@ -70,5 +96,18 @@ describe('matchPath(string, RegExp)', () => {
   });
   it('should return true when path passes the RegExp test', () => {
     expect(matchPath('/api/users/123', pattern)).toStrictEqual(true);
+  });
+  it('should return true when a wildcard is used', () => {
+    const wildcard_pattern = /.*/;
+    expect(matchPath('', wildcard_pattern)).toBe(true);
+    expect(matchPath('/', wildcard_pattern)).toBe(true);
+    expect(matchPath('/anypath', wildcard_pattern)).toBe(true);
+    expect(matchPath('/any-path', wildcard_pattern)).toBe(true);
+    expect(matchPath('/any-path123.soda', wildcard_pattern)).toBe(true);
+    expect(matchPath('/any-path123.soda', wildcard_pattern, true)).toBe(true);
+    expect(matchPath('/any-path123.soda', wildcard_pattern, false)).toBe(true);
+    expect(matchPath('/any-pat/h123/.soda', wildcard_pattern, false)).toBe(
+      true
+    );
   });
 });
