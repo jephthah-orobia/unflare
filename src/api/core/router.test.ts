@@ -2,6 +2,7 @@ import { describe, expect, it } from 'vitest';
 import { HTTPVerbs } from '../enums/http-verbs';
 import { Requester } from './requester';
 import { Responder } from './responder';
+import { Route } from './route';
 import { Router } from './router';
 
 describe('Router Constructor', () => {
@@ -75,6 +76,58 @@ describe('Router::canHandle()', () => {
   });
 });
 
+describe('Router::routOfPath()', () => {
+  const pattern1 = /\/api\/users/i;
+  const path0 = '/api/users/:id/email/:email';
+  const path1 = '/api/users';
+  const path2 = '*';
+
+  it('should return a route or null according to the provided path', () => {
+    const router = new Router();
+    const route0 = router.get(path0, (req, res) => {
+      res.send('home page');
+    });
+    const route0copy = router.get(path0, (req, res) => {
+      res.send('this should be unreachable');
+    });
+
+    expect(route0).toBe(route0copy);
+
+    const route1 = router.get(path1, (req, res) => {
+      res.send('this is route1');
+    });
+    const route1copy = router.get(path1, (req, res) => {
+      res.send('this should be unreachable');
+    });
+
+    expect(route1).toBe(route1copy);
+    expect(route0).not.toBe(route1);
+    expect(route1).not.toBe(route0);
+
+    const route2 = router.get(path2, (req, res) => {
+      res.send('this is route 2');
+    });
+    const route2copy = router.get(path2, (req, res) => {
+      res.send('this should be unreachable');
+    });
+    console.dir(router);
+    expect(route2).toBe(route2copy);
+    expect(route0).not.toBe(route2);
+    expect(route1).not.toBe(route2);
+
+    const route3 = router.get(pattern1, (req, res) => {
+      res.send('this is route 3');
+    });
+    const route3copy = router.get(pattern1, (req, res) => {
+      res.send('this should be unreachable');
+    });
+
+    expect(route3).toBe(route3copy);
+    expect(route0).not.toBe(route2);
+    expect(route1).not.toBe(route2);
+  });
+});
+
 describe('Router::tryToHandle()', () => {
   it('should set the params property of the requester and set the isDone property of the responder given valid handlers', async () => {
     const route1 = new Router();
@@ -136,24 +189,47 @@ describe('Router::tryToHandle()', () => {
   it('should handle wild cards request', async () => {
     const router = new Router();
     const msg = 'I have recieved the request.';
+
+    //console.dir(router);
     router.get('*', (req: Requester, res: Responder) => {
       res.status(402).send(msg);
     });
 
+    router.get('/', (req: Requester, res: Responder) => {
+      res.send('home');
+    });
+
+    //console.dir(router);
     const responder = new Responder('example.com');
+    const responder1 = new Responder('example.com');
     const requester = new Requester(
       new Request('https://example.com/somepaththatmightnotexist')
     );
 
-    expect(() => {
-      router.tryToHandle(requester, responder);
+    const requester1 = await Requester.fromRequest(
+      new Request('https://example.com/')
+    );
+
+    expect(async () => {
+      await router.tryToHandle(requester, responder);
     }).not.toThrowError();
 
     expect(router.canHandle(requester)).toBe(true);
-    router.tryToHandle(requester, responder);
+    await router.tryToHandle(requester, responder);
     const res = responder.response;
     expect(res.status).toBe(402);
     const resBody = await res.text();
     expect(resBody).toBe(msg);
+
+    expect(async () => {
+      await router.tryToHandle(requester1, responder);
+    }).not.toThrowError();
+
+    expect(router.canHandle(requester1)).toBe(true);
+    await router.tryToHandle(requester1, responder1);
+    const res1 = responder.response;
+    expect(res1.status).toBe(402);
+    const resBody1 = await res1.text();
+    expect(resBody1).toBe(msg);
   });
 });
