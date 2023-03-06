@@ -104,21 +104,34 @@ describe('fetch()', () => {
       res: Responder,
       next: NextFunction
     ) => {
-      res.status(403).send('I handled this!');
+      res.status(403).send('I handled this! ' + err);
     };
 
-    app.get('/a-page-that-throws-an-error', () => {
+    app.get('/a-page-that-throws-an-error', (req, res) => {
       throw new Error('This page throws an error!');
+    });
+
+    app.all('*', (req, res) => {
+      throw new Error('Not Found!');
     });
 
     app.use(errorHandler);
 
-    const res = await app.fetch(
-      new Request('https://ex.com/a-page-that-throws-an-error')
-    );
+    const req = new Request('https://ex.com/a-page-that-throws-an-error');
+    const req1 = new Request('https://ex.com/a-page-that-does-not-exist');
+    const res = await app.fetch(req);
+
+    const res1 = await app.fetch(req1);
 
     expect(res).toBeDefined();
     expect(res.status).toBe(403);
-    expect(await res.text()).toBe('I handled this!');
+    expect(await res.text()).toBe(
+      'I handled this! Error: This page throws an error!'
+    );
+
+    expect(app.canHandle(new Requester(req1))).toBe(true);
+    expect(res1).toBeDefined();
+    expect(res1.status).toBe(403);
+    expect(await res1.text()).toBe('I handled this! Error: Not Found!');
   });
 });

@@ -4,17 +4,6 @@ import { Requester } from './requester';
 import { Responder } from './responder';
 import { Router } from './router';
 
-describe('Assumptions', () => {
-  it('iterating on enum', () => {
-    const methods: string[] = [];
-    for (const verb in HTTPVerbs) methods.push(verb);
-    expect(methods.every((e) => typeof e == 'string')).toBeTruthy();
-    expect(methods.includes(HTTPVerbs.ALL)).toBeTruthy();
-    expect(methods.includes(HTTPVerbs.GET)).toBeTruthy();
-    expect(methods.includes(HTTPVerbs.CONNECT)).toBeTruthy();
-  });
-});
-
 describe('Router Constructor', () => {
   it('Property test', () => {
     const router = new Router();
@@ -86,7 +75,7 @@ describe('Router::canHandle()', () => {
   });
 });
 
-describe('Router::handle()', () => {
+describe('Router::tryToHandle()', () => {
   it('should set the params property of the requester and set the isDone property of the responder given valid handlers', async () => {
     const route1 = new Router();
     const req1 = new Requester(
@@ -129,6 +118,7 @@ describe('Router::handle()', () => {
     route2.get('/users', (req: Requester, res: Responder) => {
       res.send('users here');
     });
+
     await route2.tryToHandle(new Requester(req), reser1);
     expect(reser1.isDone).toBe(true);
     const res1 = reser1.response;
@@ -141,5 +131,27 @@ describe('Router::handle()', () => {
     expect(reser3.isDone).toBe(true);
     const res3 = reser3.response;
     expect(await res3?.text()).toStrictEqual('users here');
+  });
+
+  it('should handle wild cards request', async () => {
+    const router = new Router();
+    const msg = 'I have recieved the request.';
+    router.get('*', (req: Requester, res: Responder) => {
+      res.status(402).send(msg);
+    });
+    const responder = new Responder('example.com');
+    const requester = new Requester(
+      new Request('https://example.com/somepaththatmightnotexist')
+    );
+    expect(() => {
+      router.tryToHandle(requester, responder);
+    }).not.toThrowError();
+
+    expect(router.canHandle(requester)).toBe(false);
+    router.tryToHandle(requester, responder);
+    const res = responder.response;
+    expect(res.status).toBe(402);
+    const resBody = await res.text();
+    expect(resBody).toBe(msg);
   });
 });

@@ -66,9 +66,22 @@ describe('Route::canHandle()', () => {
     });
     expect(route1.canHandle(req1)).toStrictEqual(true);
   });
+
+  it('should return true when path is wildcard `*`', async () => {
+    const route1 = new Route('*');
+    const req1 = new Requester(
+      new Request('https://example.com/api/users/1234/email/test@test.test', {
+        method: 'GET',
+      })
+    );
+    route1.get((req: Requester, res: Responder) => {
+      res.send('Method for All');
+    });
+    expect(route1.canHandle(req1)).toStrictEqual(true);
+  });
 });
 
-describe('Route::handle()', () => {
+describe('Route::tryToHandle()', () => {
   it('should set the params property of the requester and set the isDone property of the responder given valid handlers', async () => {
     const route1 = new Route('/api/users/:id/email/:email');
     const req1 = new Requester(
@@ -85,6 +98,7 @@ describe('Route::handle()', () => {
     expect(req1.params).toStrictEqual({ id: '1234', email: 'test@test.test' });
     expect(res.isDone).toStrictEqual(true);
   });
+
   it('should set the body property of the requester and set the isDone property of the responder given valid handlers', async () => {
     const route1 = new Route('/api/users');
     const bodyToSend = { email: 'test@test.com', password: 'Abc123' };
@@ -114,6 +128,30 @@ describe('Route::handle()', () => {
     expect(res.isDone).toStrictEqual(true);
     expect(await res.response.json()).toStrictEqual(bodyToSend);
   });
+
+  it('should handle wild cards request', async () => {
+    const route = new Route('*');
+    const msg = 'I have recieved the request.';
+    route.get((req: Requester, res: Responder) => {
+      res.status(402).send(msg);
+    });
+    const responder = new Responder('example.com');
+    const requester = new Requester(
+      new Request('https://example.com/somepaththatmightnotexist', {
+        method: 'GET',
+      })
+    );
+    expect(async () => {
+      await route.tryToHandle(requester, responder);
+    }).not.toThrowError();
+
+    expect(route.canHandle(requester)).toBe(false);
+    await route.tryToHandle(requester, responder);
+    const res = responder.response;
+    expect(res.status).toBe(402);
+    const resBody = await res.text();
+    expect(resBody).toBe(msg);
+  });
 });
 
 describe('Route::routeOfPath', () => {
@@ -122,7 +160,7 @@ describe('Route::routeOfPath', () => {
   const route2 = new Route('/api/users/:id/email/:email');
   const route3 = new Route(pattern1);
 
-  it('should return true/false according to the provided path', () => {
+  it('should return a route or null according to the provided path', () => {
     expect(route1.path).toStrictEqual('/api/users');
     expect(route2.path).toStrictEqual('/api/users/:id/email/:email');
     //@ts-ignore
