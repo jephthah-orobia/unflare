@@ -18,7 +18,11 @@ export interface UnflareOptions {
 }
 
 export class Unflare extends Router {
+  #pre_fetch: Function[] = [];
+  #post_fetch: Function[] = [];
+
   strict: boolean = false;
+
   constructor(
     // in preparation of additional options in the future
     options: UnflareOptions = {
@@ -48,6 +52,14 @@ export class Unflare extends Router {
     this.createNotFoundResponse = creator;
   }
 
+  beforeEach(...args: Function[]): void {
+    this.#pre_fetch.push(...args);
+  }
+
+  afterEach(...args: Function[]): void {
+    this.#post_fetch.push(...args);
+  }
+
   static Router(): Router {
     return new Router();
   }
@@ -58,15 +70,25 @@ export class Unflare extends Router {
     ctx?: ExecutionContext
   ): Promise<Response> {
     ctx?.passThroughOnException();
+
+    // call pre hooks
+    this.#pre_fetch.forEach(async (e) => await e.apply(this));
+
     const reqer = await Requester.fromRequest(req, this.strict);
     const reser = new Responder(reqer.url.host);
     let err: any = false;
+
     try {
       await this.tryToHandle(reqer, reser);
     } catch (e: any) {
       console.error(e);
       err = e;
     }
+
+    // call post hooks
+    this.#post_fetch.forEach(async (e) => await e.apply(this));
+
+    // return the correct response
     if (reser.isDone) return reser.response!;
     else if (!err) return this.createNotFoundResponse();
     else
@@ -76,6 +98,6 @@ export class Unflare extends Router {
       });
   }
   /* async scheduled(event: ScheduledEvent, env: Env, ctx: ExecutionContext) {
-    //ctx.waitUntil(doSomeTaskOnASchedule());
-  }, */
+      //ctx.waitUntil(doSomeTaskOnASchedule());
+    }, */
 }
