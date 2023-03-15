@@ -1,4 +1,4 @@
-import { describe, it, expect } from 'vitest';
+import { describe, it, expect, vi } from 'vitest';
 import { NextFunction } from '../interfaces/middleware';
 import { Requester } from './requester';
 import { Responder } from './responder';
@@ -133,5 +133,73 @@ describe('fetch()', () => {
     expect(res1).toBeDefined();
     expect(res1.status).toBe(403);
     expect(await res1.text()).toBe('I handled this! Error: Not Found!');
+  });
+});
+
+describe('.beforeEach() and .afterEach()', () => {
+  it('should call added hooks on right timing', async () => {
+    const app = new Unflare();
+    const preHook = vi.fn(() => {
+      sequence += '0';
+    });
+
+    const asyncPreHook = vi.fn(async () => (sequence += 'a'));
+
+    const postHook = vi.fn(() => {
+      sequence += '2';
+    });
+    const asyncPostHook = vi.fn(async () => (sequence += 'b'));
+
+    let sequence = '';
+    app.get('/', (req: Requester, res: Responder) => {
+      sequence += '1';
+      res.send('home!');
+    });
+
+    app.get('/reset', (req: Requester, res: Responder) => {
+      sequence = '---';
+      res.status(201).send('reset!');
+    });
+
+    app.beforeEach(preHook); // 0
+    app.beforeEach(preHook, asyncPreHook); // 00a
+    app.beforeEach(preHook, asyncPreHook, preHook); // 00a0a0
+    expect(preHook).not.toHaveBeenCalled(); // check that the prehook is not called during addition;
+    expect(asyncPreHook).not.toHaveBeenCalled(); // check that the prehook is not called during addition;
+
+    app.afterEach(postHook); // 00a0a012
+    app.afterEach(postHook, asyncPostHook); // 00a0a0122b
+    app.afterEach(postHook, asyncPostHook, postHook); // 00a0a0a122b2b2
+    expect(postHook).not.toHaveBeenCalled(); // check that the prehook is not called during addition;
+    expect(asyncPostHook).not.toHaveBeenCalled(); // check that the prehook is not called during addition;
+
+    const req_home = new Request('https://example.com/', { method: 'GET' });
+    const req_reset = new Request('https://example.com/reset', {
+      method: 'GET',
+    });
+
+    const res_home = await app.fetch(req_home);
+
+    expect(res_home.status).toBe(200);
+    expect(await res_home.text()).toBe('home!');
+
+    expect(preHook).toHaveBeenCalledTimes(4);
+    expect(asyncPreHook).toHaveBeenCalledTimes(2);
+    expect(postHook).toHaveBeenCalledTimes(4);
+    expect(asyncPostHook).toHaveBeenCalledTimes(2);
+
+    expect(sequence).toBe('00a0a0122b2b2');
+
+    const res_reset = await app.fetch(req_reset);
+
+    expect(res_reset.status).toBe(201);
+    expect(await res_reset.text()).toBe('reset!');
+
+    expect(preHook).toHaveBeenCalledTimes(8);
+    expect(asyncPreHook).toHaveBeenCalledTimes(4);
+    expect(postHook).toHaveBeenCalledTimes(8);
+    expect(asyncPostHook).toHaveBeenCalledTimes(4);
+
+    expect(sequence).toBe('---22b2b2');
   });
 });
