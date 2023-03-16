@@ -2,17 +2,6 @@ import { Requester } from './requester';
 import { Responder } from './responder';
 import { Router } from './router';
 
-export interface Env {
-  // Example binding to KV. Learn more at https://developers.cloudflare.com/workers/runtime-apis/kv/
-  // MY_KV_NAMESPACE: KVNamespace;
-  //
-  // Example binding to Durable Object. Learn more at https://developers.cloudflare.com/workers/runtime-apis/durable-objects/
-  // MY_DURABLE_OBJECT: DurableObjectNamespace;
-  //
-  // Example binding to R2. Learn more at https://developers.cloudflare.com/workers/runtime-apis/r2/
-  // MY_BUCKET: R2Bucket;
-}
-
 export interface UnflareOptions {
   strictRouting?: boolean; //default: false
 }
@@ -20,8 +9,17 @@ export interface UnflareOptions {
 export class Unflare extends Router {
   #pre_fetch: Function[] = [];
   #post_fetch: Function[] = [];
+  #env: any = {};
 
   strict: boolean = false;
+
+  /**
+   * - contains the `env` object that holds the KV bindings.
+   * - read more obout [KV](https://developers.cloudflare.com/workers/runtime-apis/kv/)
+   */
+  get ENV(): any {
+    return this.#env;
+  }
 
   constructor(
     // in preparation of additional options in the future
@@ -66,10 +64,12 @@ export class Unflare extends Router {
 
   async fetch(
     req: Request,
-    env?: Env,
+    env?: any,
     ctx?: ExecutionContext
   ): Promise<Response> {
     ctx?.passThroughOnException();
+
+    this.#env = env;
 
     // call pre hooks
     this.#pre_fetch.forEach(async (e) => await e.apply(this));
