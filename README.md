@@ -1,15 +1,16 @@
 # unflare
 
-Just another [express](https://expressjs.com/)-inspired web framework for [cloudflare's workers](https://workers.cloudflare.com/).
+Just another ~~[express](https://expressjs.com/)-inspired~~ web framework for serverless like [cloudflare's workers](https://workers.cloudflare.com/).
 
 ![npm bundle size](https://img.shields.io/bundlephobia/min/unflare?label=install%20size&style=plastic) ![npm version](https://img.shields.io/npm/v/unflare?style=plastic) ![node-current](https://img.shields.io/node/v/unflare?style=plastic)
 
 ```typescript
-import { Unflare, Requester, Responder } from 'unflare';
+import { Unflare } from 'unflare';
 
 const app = new Unflare();
 
-app.get('/', function (req: Requester, res: Responder) {
+app.get('/', () => {
+  const { res } = app;
   res.send('Hello World!');
 });
 
