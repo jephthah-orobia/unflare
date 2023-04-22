@@ -1,4 +1,4 @@
-# unflare
+# Unflare (v2)
 
 Just another ~~[express](https://expressjs.com/)-inspired~~ web framework for serverless like [cloudflare's workers](https://workers.cloudflare.com/).
 
