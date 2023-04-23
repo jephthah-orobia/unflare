@@ -1,9 +1,9 @@
 import { Requester } from '../core/requester';
-import { Responder } from '../core/responder';
+import { ResponseFactory } from '../core/response-factory';
 import { HTTPVerbs } from '../enums/http-verbs';
 
 export type RouteHandler = {
-  (req: Requester, res: Responder): void | Promise<void>;
+  (req: Requester, res: ResponseFactory): void | Promise<void>;
   method: HTTPVerbs;
 };
 

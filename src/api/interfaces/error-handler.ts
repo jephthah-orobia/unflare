@@ -1,11 +1,11 @@
 import { Requester } from '../core/requester';
-import { Responder } from '../core/responder';
+import { ResponseFactory } from '../core/response-factory';
 import { NextFunction } from './middleware';
 
 export type ErrorHandler = (
   err: any,
   req: Requester,
-  res: Responder,
+  res: ResponseFactory,
   next: NextFunction
 ) => void | Promise<void>;
 

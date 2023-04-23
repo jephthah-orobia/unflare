@@ -1,11 +1,15 @@
 import { Requester } from '../core/requester';
-import { Responder } from '../core/responder';
+import { ResponseFactory } from '../core/response-factory';
 import { HTTPVerbs } from '../enums/http-verbs';
 
 export type NextFunction = (err?: any) => void | Promise<void>;
 
 export type Middleware = {
-  (req: Requester, res: Responder, next: NextFunction): void | Promise<void>;
+  (
+    req: Requester,
+    res: ResponseFactory,
+    next: NextFunction
+  ): void | Promise<void>;
   method: HTTPVerbs;
 };
 

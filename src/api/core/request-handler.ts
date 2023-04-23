@@ -4,7 +4,7 @@ import { isMiddleware, NextFunction } from '../interfaces/middleware';
 import { isRouteHandler } from '../interfaces/route-handler';
 import { getParams } from '../utils/url/params/get-params';
 import { Requester } from './requester';
-import { Responder } from './responder';
+import { ResponseFactory } from './response-factory';
 
 /**
  * A Generic Class for Handling Request. Intended to be inherited by Route and Router
@@ -28,8 +28,21 @@ export abstract class RequestHandler<T> {
       throw new Error('Abstract classes cannot be instantiated');
   }
 
-  protected req: Requester | undefined;
-  protected res: Responder | undefined;
+  #env?: any;
+  #req!: Requester;
+  #res!: ResponseFactory;
+
+  get ENV(): any {
+    return this.#env;
+  }
+
+  get req(): Requester {
+    return this.#req;
+  }
+
+  get res(): ResponseFactory {
+    return this.#res;
+  }
 
   protected methods: HTTPVerbs[] = [];
 
@@ -41,7 +54,8 @@ export abstract class RequestHandler<T> {
 
   tryToHandle = async (
     req: Requester,
-    res: Responder,
+    res: ResponseFactory,
+    env: any,
     next?: NextFunction
   ): Promise<void> => {
     if (!this.canHandle(req)) {
@@ -55,8 +69,9 @@ export abstract class RequestHandler<T> {
     try {
       if (this.pathOrPattern !== '')
         req.params = getParams(req.path, this.pathOrPattern);
-      this.res = res;
-      this.req = req;
+      this.#res = res;
+      this.#req = req;
+      this.#env = env;
       await this.next();
       if (next) await next();
     } catch (e) {

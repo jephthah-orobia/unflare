@@ -1,5 +1,5 @@
 import { Requester } from './requester';
-import { Responder } from './responder';
+import { ResponseFactory } from './response-factory';
 import { Router } from './router';
 
 export interface UnflareOptions {
@@ -9,17 +9,13 @@ export interface UnflareOptions {
 export class Unflare extends Router {
   #pre_fetch: Function[] = [];
   #post_fetch: Function[] = [];
-  #env: any = {};
 
   strict: boolean = false;
 
   /**
    * - contains the `env` object that holds the KV bindings.
    * - read more obout [KV](https://developers.cloudflare.com/workers/runtime-apis/kv/)
-   */
-  get ENV(): any {
-    return this.#env;
-  }
+  
 
   constructor(
     // in preparation of additional options in the future
@@ -75,7 +71,7 @@ export class Unflare extends Router {
     this.#pre_fetch.forEach(async (e) => await e.apply(this));
 
     const reqer = await Requester.fromRequest(req, this.strict);
-    const reser = new Responder(reqer.url.host);
+    const reser = new ResponseFactory(reqer.url.host);
     let err: any = false;
 
     try {
