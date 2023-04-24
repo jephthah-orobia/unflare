@@ -1,10 +1,11 @@
-import { Unflare, Requester, Responder } from 'unflare';
+import { Unflare } from 'unflare';
 
 export interface Env {} // needed by wrangler
 
 export const app = new Unflare();
 
-app.get('/', function (req: Requester, res: Responder) {
+app.get('/', () => {
+  const { req, res } = app;
   res.headers.set('Content-Type', 'text/html');
   if (!req.cookies.user) {
     return res.send(`
@@ -41,7 +42,8 @@ app.get('/', function (req: Requester, res: Responder) {
   }
 });
 
-app.post('/users', function (req: Requester, res: Responder) {
+app.post('/users', () => {
+  const { req, res } = app;
   if (!req.body.name) return res.status(401).send('name');
   const id = crypto.randomUUID();
   res.cookie('user', JSON.stringify({ name: req.body.name, id }));
@@ -49,7 +51,8 @@ app.post('/users', function (req: Requester, res: Responder) {
   res.send();
 });
 
-app.get('/signout', (req: Requester, res: Responder) => {
+app.get('/signout', () => {
+  const { res } = app;
   res.cookie('user', '');
   res.status(302, 'Reedirecting').headers.set('Location', '/');
   res.send();

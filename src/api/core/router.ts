@@ -1,12 +1,10 @@
-import { isMiddleware, Middleware } from '../interfaces/middleware';
 import { Route } from './route';
 import { RequestHandler } from './request-handler';
 import { Requester } from './requester';
 import { HTTPVerbs } from '../enums/http-verbs';
 import { flattenArray } from '../utils/fn/flatten-array';
-import { isErrorHandler } from '../interfaces/error-handler';
 
-export class Router extends RequestHandler<Middleware | Router | Route> {
+export class Router extends RequestHandler {
   canHandle(req: Requester): boolean {
     if (
       this.methods.includes(req.method) ||
@@ -18,26 +16,12 @@ export class Router extends RequestHandler<Middleware | Router | Route> {
     return false;
   }
 
-  routeOfPath(path: string | RegExp): Route | null {
-    for (const handler of this.handlers)
-      if (handler instanceof RequestHandler) {
-        const route = handler.routeOfPath(path);
-        if (route) return route;
-      }
-    return null;
-  }
-
   use(...args: any[]): Router {
     const flatten = flattenArray(...args);
     for (const handler of flatten) {
-      if (isErrorHandler(handler)) this.errorHandlers.push(handler);
-      else if (isMiddleware(handler)) handler.method = HTTPVerbs.ALL;
-      else if (
-        isMiddleware(handler) ||
-        handler instanceof Router ||
-        handler instanceof Route
-      )
-        this.handlers.push(handler);
+      if (typeof handler == 'function' && handler.length == 1)
+        this.errorHandlers.push(handler);
+      else this.handlers.push(handler);
     }
     return this;
   }
@@ -52,27 +36,45 @@ export class Router extends RequestHandler<Middleware | Router | Route> {
 
     if (typeof handlers[0] === 'string' || handlers[0] instanceof RegExp) {
       const path = handlers.shift();
-      const route = this.route(path);
+      const route = new Route(path);
+      this.handlers.push(route);
       return route._handle_methods(method, ...handlers);
     } else {
       for (const handler of handlers) {
-        if (isErrorHandler(handler)) this.errorHandlers.push(handler);
-        else if (isMiddleware(handler)) {
-          handler.method = method;
-          this.handlers.push(handler);
+        if (typeof handler == 'function') {
+          if (handler.length != 1) {
+            handler.method = method;
+            this.handlers.push(handler);
+          } else this.errorHandlers.push(handler);
         }
+        //else ignore the element
       }
       return this;
     }
   }
 
-  route(path: string | RegExp): Route {
-    const route = this.routeOfPath(path);
-    if (!route) {
-      const newRoute = new Route(path);
-      this.handlers.push(newRoute);
-      return newRoute;
+  protected async handleRequest() {
+    for (const handler of this.handlers) {
+      if (this.res.isDone) break;
+      if (handler instanceof RequestHandler)
+        try {
+          await handler.tryToHandle(this.req, this.res, this.ENV);
+        } catch (e) {
+          await this.handleError(e);
+          if (!this.res.isDone) {
+            throw e;
+          }
+        }
+      else if (typeof handler == 'function') {
+        try {
+          await handler();
+        } catch (e) {
+          await this.handleError(e);
+          if (!this.res.isDone) {
+            throw e;
+          }
+        }
+      }
     }
-    return route;
   }
 }

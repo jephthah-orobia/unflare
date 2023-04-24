@@ -1,4 +1,4 @@
-import { Unflare, Requester, Responder } from 'unflare';
+import { Unflare } from 'unflare';
 import { AnotherError } from './api/errors/another-error';
 import { NotFoundError } from './api/errors/not-found-errror';
 import { CustomErrorHandler } from './error-handlers/custom-error-handler';
@@ -9,15 +9,16 @@ const app = new Unflare();
 
 app.use(CustomErrorHandler);
 
-app.get('/', (req: Requester, res: Responder) => {
+app.get('/', () => {
+  const { res } = app;
   res.send('Hello World');
 });
 
-app.get('/path-that-throws-error', (req: Requester, res: Responder) => {
+app.get('/path-that-throws-error', () => {
   throw new AnotherError('An error is thrown!');
 });
 
-app.all('*', (req: Requester, res: Responder) => {
+app.all('*', () => {
   console.log('code is reached');
   throw new NotFoundError();
 });

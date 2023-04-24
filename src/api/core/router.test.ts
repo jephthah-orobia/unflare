@@ -1,9 +1,7 @@
 import { describe, expect, it } from 'vitest';
-import { HTTPVerbs } from '../enums/http-verbs';
-import { Requester } from './requester';
-import { Responder } from './responder';
-import { Route } from './route';
 import { Router } from './router';
+import { Requester } from './requester';
+import { ResponseFactory } from './response-factory';
 
 describe('Router Constructor', () => {
   it('Property test', () => {
@@ -27,8 +25,8 @@ describe('Router::canHandle()', () => {
     const req1 = new Requester(
       new Request('https://example.com/api/users', { method: 'GET' })
     );
-    route1.post('/api/users', (req: Requester, res: Responder) => {
-      res.send('Hello');
+    route1.post('/api/users', () => {
+      route1.res.send('Hello');
     });
     expect(route1.canHandle(req1)).toStrictEqual(false);
   });
@@ -39,11 +37,11 @@ describe('Router::canHandle()', () => {
       new Request('https://example.com/api/users', { method: 'GET' })
     );
     route1
-      .get('/api/users', (req: Requester, res: Responder) => {
-        res.send('Hello');
+      .get('/api/users', () => {
+        route1.res.send('Hello');
       })
-      .post('/api/users', (req: Requester, res: Responder) => {
-        res.send('You ask to post?');
+      .post('/api/users', () => {
+        route1.res.send('You ask to post?');
       });
     expect(route1.canHandle(req1)).toStrictEqual(true);
   });
@@ -53,8 +51,8 @@ describe('Router::canHandle()', () => {
     const req1 = new Requester(
       new Request('https://example.com/api/users', { method: 'GET' })
     );
-    route1.all('/api/users', (req: Requester, res: Responder) => {
-      res.send('Method for All');
+    route1.all('/api/users', () => {
+      route1.res.send('Method for All');
     });
     expect(route1.canHandle(req1)).toStrictEqual(true);
   });
@@ -66,64 +64,10 @@ describe('Router::canHandle()', () => {
         method: 'GET',
       })
     );
-    route1.get(
-      '/api/users/:id/email/:email',
-      (req: Requester, res: Responder) => {
-        res.send('Method for All');
-      }
-    );
+    route1.get('/api/users/:id/email/:email', () => {
+      route1.res.send('Method for All');
+    });
     expect(route1.canHandle(req1)).toStrictEqual(true);
-  });
-});
-
-describe('Router::routOfPath()', () => {
-  const pattern1 = /\/api\/users/i;
-  const path0 = '/api/users/:id/email/:email';
-  const path1 = '/api/users';
-  const path2 = '*';
-
-  it('should return a route or null according to the provided path', () => {
-    const router = new Router();
-    const route0 = router.get(path0, (req, res) => {
-      res.send('home page');
-    });
-    const route0copy = router.get(path0, (req, res) => {
-      res.send('this should be unreachable');
-    });
-
-    expect(route0).toBe(route0copy);
-
-    const route1 = router.get(path1, (req, res) => {
-      res.send('this is route1');
-    });
-    const route1copy = router.get(path1, (req, res) => {
-      res.send('this should be unreachable');
-    });
-
-    expect(route1).toBe(route1copy);
-    expect(route0).not.toBe(route1);
-    expect(route1).not.toBe(route0);
-
-    const route2 = router.get(path2, (req, res) => {
-      res.send('this is route 2');
-    });
-    const route2copy = router.get(path2, (req, res) => {
-      res.send('this should be unreachable');
-    });
-    expect(route2).toBe(route2copy);
-    expect(route0).not.toBe(route2);
-    expect(route1).not.toBe(route2);
-
-    const route3 = router.get(pattern1, (req, res) => {
-      res.send('this is route 3');
-    });
-    const route3copy = router.get(pattern1, (req, res) => {
-      res.send('this should be unreachable');
-    });
-
-    expect(route3).toBe(route3copy);
-    expect(route0).not.toBe(route2);
-    expect(route1).not.toBe(route2);
   });
 });
 
@@ -135,14 +79,11 @@ describe('Router::tryToHandle()', () => {
         method: 'GET',
       })
     );
-    route1.get(
-      '/api/users/:id/email/:email',
-      (req: Requester, res: Responder) => {
-        res.send('Method for All');
-      }
-    );
+    route1.get('/api/users/:id/email/:email', () => {
+      route1.res.send('Method for All');
+    });
     expect(route1.canHandle(req1)).toStrictEqual(true);
-    const res = new Responder('example.com');
+    const res = new ResponseFactory('example.com');
     expect(() => route1.tryToHandle(req1, res)).not.toThrowError();
     expect(req1.params).toStrictEqual({ id: '1234', email: 'test@test.test' });
     expect(res.isDone).toStrictEqual(true);
@@ -155,20 +96,20 @@ describe('Router::tryToHandle()', () => {
     const req_2 = new Request('https://www.example.com/users', {
       method: 'GET',
     });
-    const reser1 = new Responder('www.example.com');
-    const reser2 = new Responder('www.example.com');
-    const reser3 = new Responder('www.example.com');
+    const reser1 = new ResponseFactory('www.example.com');
+    const reser2 = new ResponseFactory('www.example.com');
+    const reser3 = new ResponseFactory('www.example.com');
 
-    route2.get('/', (req: Requester, res: Responder) => {
-      res.send('Hello World');
+    route2.get('/', () => {
+      route2.res.send('Hello World');
     });
 
-    route2.get('/user/:id', (re: Requester, res: Responder) => {
-      res.send(re.params.id);
+    route2.get('/user/:id', () => {
+      route2.res.send(route2.req.params.id);
     });
 
-    route2.get('/users', (req: Requester, res: Responder) => {
-      res.send('users here');
+    route2.get('/users', () => {
+      route2.res.send('users here');
     });
 
     await route2.tryToHandle(new Requester(req), reser1);
@@ -190,17 +131,17 @@ describe('Router::tryToHandle()', () => {
     const msg = 'I have recieved the request.';
 
     //console.dir(router);
-    router.get('*', (req: Requester, res: Responder) => {
-      res.status(402).send(msg);
+    router.get('*', () => {
+      router.res.status(402).send(msg);
     });
 
-    router.get('/', (req: Requester, res: Responder) => {
-      res.send('home');
+    router.get('/', () => {
+      router.res.send('home');
     });
 
     //console.dir(router);
-    const responder = new Responder('example.com');
-    const responder1 = new Responder('example.com');
+    const responder = new ResponseFactory('example.com');
+    const responder1 = new ResponseFactory('example.com');
     const requester = new Requester(
       new Request('https://example.com/somepaththatmightnotexist')
     );
