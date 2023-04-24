@@ -1,146 +1,96 @@
 import { HTTPVerbs } from '../enums/http-verbs';
-import { ErrorHandler } from '../interfaces/error-handler';
-import { isMiddleware, NextFunction } from '../interfaces/middleware';
-import { isRouteHandler } from '../interfaces/route-handler';
 import { getParams } from '../utils/url/params/get-params';
 import { Requester } from './requester';
-import { Responder } from './responder';
+import { ResponseFactory } from './response-factory';
 
 /**
  * A Generic Class for Handling Request. Intended to be inherited by Route and Router
- * - `T` - any handler except for ErrorHandler
  */
-export abstract class RequestHandler<T> {
-  pathOrPattern: string | RegExp = '';
+export abstract class RequestHandler {
   abstract canHandle(req: Requester): boolean;
-  abstract use(...args: any[]): any;
+  abstract use(...args: Function[]): any;
   abstract _handle_methods(method: HTTPVerbs, ...args: any[]): any;
-
-  get path(): string {
-    if (!this.pathOrPattern) return '';
-    return this.pathOrPattern instanceof RegExp
-      ? this.pathOrPattern.source.replaceAll('\\/', '/')
-      : this.pathOrPattern;
-  }
+  protected abstract handleRequest(): void | Promise<void>;
 
   constructor() {
     if (!this.canHandle || !this._handle_methods)
       throw new Error('Abstract classes cannot be instantiated');
   }
 
-  protected req: Requester | undefined;
-  protected res: Responder | undefined;
+  private _env?: any;
+  private _req!: Requester;
+  private _res!: ResponseFactory;
+
+  /**
+   * - contains the `env` object that holds the KV bindings.
+   * - read more obout [KV](https://developers.cloudflare.com/workers/runtime-apis/kv/)
+   */
+  get ENV(): any {
+    return this._env;
+  }
+
+  get req(): Requester {
+    return this._req;
+  }
+
+  get res(): ResponseFactory {
+    return this._res;
+  }
 
   protected methods: HTTPVerbs[] = [];
 
-  protected handlersIndex: number = -1; // handler index
-  protected errorHandlersIndex: number = -1; // error handler index;
-  protected handlers: T[] = [];
-  protected errorHandlers: ErrorHandler[] = [];
-  protected error: any;
+  protected handlers: (Function | RequestHandler)[] = [];
+  protected errorHandlers: ((err: any) => any | Promise<any>)[] = [];
 
   tryToHandle = async (
     req: Requester,
-    res: Responder,
-    next?: NextFunction
+    res: ResponseFactory,
+    env?: any
   ): Promise<void> => {
-    if (!this.canHandle(req)) {
-      if (next) await next();
-      return;
-    }
+    if (!this.canHandle(req)) return;
 
-    this.handlersIndex = -1;
-    this.errorHandlersIndex = -1;
-
-    try {
-      if (this.pathOrPattern !== '')
-        req.params = getParams(req.path, this.pathOrPattern);
-      this.res = res;
-      this.req = req;
-      await this.next();
-      if (next) await next();
-    } catch (e) {
-      await this.next(e);
-      if (!this.res?.isDone && !!next) await next(this.error);
-      else if (!this.res?.isDone) throw this.error;
-    }
+    this._res = res;
+    this._req = req;
+    this._env = env;
+    await this.handleRequest();
   };
 
-  next = async (err?: any): Promise<void> => {
-    if (!this?.req || !this?.res) {
-      throw new ReferenceError(
-        `${this} or it's req property or res property is undefined`
-      );
+  protected async handleError(err: any) {
+    for (const eHandler of this.errorHandlers) {
+      if (this.res.isDone || !err) break;
+      if (typeof eHandler == 'function') await eHandler.apply(this, [err]);
     }
-
-    if (this.res?.isDone) return;
-
-    if (!err && this.handlers.length > ++this.handlersIndex) {
-      // handle if there is no error and if there is available handler
-      const handler = this.handlers[this.handlersIndex];
-      // if handler is also a collection of handler
-      if (handler instanceof RequestHandler)
-        await handler.tryToHandle(this.req, this.res, this.next);
-      // if this is a route and handler is an 'end point'
-      else if (
-        this.pathOrPattern &&
-        isRouteHandler(handler) &&
-        (handler.method == this.req.method || handler.method == HTTPVerbs.ALL)
-      )
-        await handler(this.req, this.res);
-      // if handler is a middle ware, this.next should be attach
-      else if (
-        isMiddleware(handler) &&
-        (handler.method == this.req.method || handler.method == HTTPVerbs.ALL)
-      )
-        await handler(this.req, this.res, this.next);
-    } else if (this.errorHandlers.length > ++this.errorHandlersIndex) {
-      // handle if there was an error and if there is an available error handler
-      try {
-        await this.errorHandlers[this.errorHandlersIndex](
-          err,
-          this.req,
-          this.res,
-          this.next
-        );
-      } catch (e) {
-        await this.next(e);
-        if (!this.res.isDone) {
-          this.error = e;
-        }
-      }
-    } else this.error = err;
-  };
+  }
 
   //#region Methods
-  head = (...args: any[]): RequestHandler<T> => {
+  head = (...args: any[]): RequestHandler => {
     return this._handle_methods(HTTPVerbs.HEAD, ...args);
   };
-  get = (...args: any[]): RequestHandler<T> => {
+  get = (...args: any[]): RequestHandler => {
     return this._handle_methods(HTTPVerbs.GET, ...args);
   };
-  post = (...args: any[]): RequestHandler<T> => {
+  post = (...args: any[]): RequestHandler => {
     return this._handle_methods(HTTPVerbs.POST, ...args);
   };
-  put = (...args: any[]): RequestHandler<T> => {
+  put = (...args: any[]): RequestHandler => {
     return this._handle_methods(HTTPVerbs.PUT, ...args);
   };
-  patch = (...args: any[]): RequestHandler<T> => {
+  patch = (...args: any[]): RequestHandler => {
     return this._handle_methods(HTTPVerbs.PATCH, ...args);
   };
-  delete = (...args: any[]): RequestHandler<T> => {
+  delete = (...args: any[]): RequestHandler => {
     return this._handle_methods(HTTPVerbs.DELETE, ...args);
   };
-  connect = (...args: any[]): RequestHandler<T> => {
+  connect = (...args: any[]): RequestHandler => {
     return this._handle_methods(HTTPVerbs.CONNECT, ...args);
   };
-  trace = (...args: any[]): RequestHandler<T> => {
+  trace = (...args: any[]): RequestHandler => {
     return this._handle_methods(HTTPVerbs.TRACE, ...args);
   };
-  options = (...args: any[]): RequestHandler<T> => {
+  options = (...args: any[]): RequestHandler => {
     return this._handle_methods(HTTPVerbs.OPTIONS, ...args);
   };
-  all = (...args: any[]): RequestHandler<T> => {
+  all = (...args: any[]): RequestHandler => {
     return this._handle_methods(HTTPVerbs.ALL, ...args);
   };
   //#endregion

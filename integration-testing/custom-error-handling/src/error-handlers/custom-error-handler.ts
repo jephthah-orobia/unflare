@@ -1,12 +1,8 @@
-import { Requester, Responder, NextFunction } from '../../../../dist';
 import { SerializableError } from '../api/errors/serializable-error';
+import app from '../index';
 
-export const CustomErrorHandler = (
-  err: any,
-  req: Requester,
-  res: Responder,
-  next: NextFunction
-) => {
+export const CustomErrorHandler = (err: any) => {
+  const { res } = app;
   console.log('Custom Error Handler is called!');
   if (!err) {
     console.error('no error defined');

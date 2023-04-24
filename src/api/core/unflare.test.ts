@@ -1,8 +1,6 @@
 import { describe, it, expect, vi } from 'vitest';
-import { NextFunction } from '../interfaces/middleware';
-import { Requester } from './requester';
-import { Responder } from './responder';
 import { Unflare } from './unflare';
+import { Requester } from './requester';
 
 describe('Node/Environment/Engine Assumptions', () => {
   it('An async function will finish when all running functions inside it finishes', async () => {
@@ -71,16 +69,17 @@ describe('fetch()', () => {
       method: 'GET',
     });
 
-    app.get('/', (req: Requester, res: Responder) => {
-      res.send('Hello World');
+    app.get('/', () => {
+      app.res.send('Hello World');
     });
 
-    app.get('/user/:id', (re: Requester, res: Responder) => {
-      res.send(re.params.id);
+    app.get('/user/:id', () => {
+      const { req, res } = app;
+      res.send(req.params.id);
     });
 
-    app.get('/users', (req: Requester, res: Responder) => {
-      res.send('users here');
+    app.get('/users', () => {
+      app.res.send('users here');
     });
 
     const res = await app.fetch(req);
@@ -98,25 +97,21 @@ describe('fetch()', () => {
   it('should delegate errors to handlers if there is any', async () => {
     const app = new Unflare();
 
-    const errorHandler = (
-      err: any,
-      req: Requester,
-      res: Responder,
-      next: NextFunction
-    ) => {
-      res.status(403).send('I handled this! ' + err);
-    };
-
-    app.get('/a-page-that-throws-an-error', (req, res) => {
+    app.get('/a-page-that-throws-an-error', () => {
       throw new Error('This page throws an error!');
     });
 
-    app.all('*', (req, res) => {
+    app.all('*', () => {
       throw new Error('Not Found!');
     });
 
-    app.use(errorHandler);
+    app.use((err: any) => {
+      app.res.status(403).send('I handled this! ' + err);
+    });
 
+    //@ts-ignore
+    expect(app.errorHandlers.length).toBe(1);
+    //@ts-ignore
     const req = new Request('https://ex.com/a-page-that-throws-an-error');
     const req1 = new Request('https://ex.com/a-page-that-does-not-exist');
     const res = await app.fetch(req);
@@ -151,14 +146,14 @@ describe('.beforeEach() and .afterEach()', () => {
     const asyncPostHook = vi.fn(async () => (sequence += 'b'));
 
     let sequence = '';
-    app.get('/', (req: Requester, res: Responder) => {
+    app.get('/', () => {
       sequence += '1';
-      res.send('home!');
+      app.res.send('home!');
     });
 
-    app.get('/reset', (req: Requester, res: Responder) => {
+    app.get('/reset', () => {
       sequence = '---';
-      res.status(201).send('reset!');
+      app.res.status(201).send('reset!');
     });
 
     app.beforeEach(preHook); // 0

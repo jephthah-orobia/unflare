@@ -1,25 +1,13 @@
-import { isMiddleware, Middleware } from '../interfaces/middleware';
 import { RequestHandler } from './request-handler';
-import { isRouteHandler, RouteHandler } from '../interfaces/route-handler';
 import { matchPath, normalizePath } from '../utils/url/path/match-path';
 import { Requester } from './requester';
 import { HTTPVerbs } from '../enums/http-verbs';
 import { flattenArray } from '../utils/fn/flatten-array';
-import { isErrorHandler } from '../interfaces/error-handler';
+import { getParams } from '../utils/url/params/get-params';
 
-export class Route extends RequestHandler<RouteHandler | Middleware> {
-  constructor(path: string | RegExp) {
+export class Route extends RequestHandler {
+  constructor(public pathOrPattern: string | RegExp) {
     super();
-    this.pathOrPattern = path;
-  }
-
-  routeOfPath(path: string | RegExp): Route | null {
-    let against: string | RegExp;
-    if (typeof this.pathOrPattern === 'string')
-      against = normalizePath(this.pathOrPattern);
-    else against = this.pathOrPattern;
-    if (typeof path === 'string') path = normalizePath(path);
-    return path === against ? this : null;
   }
 
   canHandle(req: Requester): boolean {
@@ -35,10 +23,9 @@ export class Route extends RequestHandler<RouteHandler | Middleware> {
   use(...args: any[]): Route {
     const flatten = flattenArray(...args);
     for (const handler of flatten) {
-      if (isErrorHandler(handler)) this.errorHandlers.push(handler);
-      else if (isMiddleware(handler) || isRouteHandler(handler)) {
-        handler.method = HTTPVerbs.ALL;
-        this.handlers.push(handler);
+      if (typeof handler == 'function') {
+        if (handler.length == 1) this.errorHandlers.push(handler);
+        else this.handlers.push(handler);
       }
     }
     return this;
@@ -51,14 +38,32 @@ export class Route extends RequestHandler<RouteHandler | Middleware> {
     if (flattenArgs.length <= 0)
       throw new Error('invalid args for handling method');
 
-    // handle if this is a route
     for (const handler of flattenArgs) {
-      if (isRouteHandler(handler) || isMiddleware(handler)) {
-        handler.method = method;
-        this.handlers.push(handler);
-      } else if (isErrorHandler(handler)) this.errorHandlers.push(handler);
+      if (typeof handler == 'function') {
+        if (handler.length != 1) {
+          handler.method = method;
+          this.handlers.push(handler);
+        } else this.errorHandlers.push(handler);
+      }
       //else ignore the element
     }
     return this;
+  }
+
+  protected async handleRequest() {
+    for (const handler of this.handlers) {
+      if (this.res.isDone) break;
+      if (typeof handler == 'function') {
+        this.req.params = getParams(this.req.path, this.pathOrPattern);
+        try {
+          await handler();
+        } catch (e) {
+          await this.handleError(e);
+          if (!this.res.isDone) {
+            throw e;
+          }
+        }
+      }
+    }
   }
 }

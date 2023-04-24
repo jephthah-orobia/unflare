@@ -1,6 +1,6 @@
 import { CookieSerializeOptions, serialize as serializeCookie } from 'cookie';
 
-export class Responder {
+export class ResponseFactory {
   #isDone: boolean = false;
   statusCode: number | undefined;
   statusText: string | undefined;
@@ -31,7 +31,7 @@ export class Responder {
     return res;
   }
 
-  status = (code: number, text?: string): Responder => {
+  status = (code: number, text?: string): ResponseFactory => {
     this.statusCode = code;
     if (text) this.statusText = text;
     return this;
@@ -71,7 +71,7 @@ export class Responder {
     name: string,
     value: string,
     options?: CookieSerializeOptions
-  ): Responder {
+  ): ResponseFactory {
     let token;
     if (options) {
       options.domain = this.host;
