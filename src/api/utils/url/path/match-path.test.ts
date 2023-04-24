@@ -37,6 +37,8 @@ describe('matchPath() test', () => {
   });
 
   it('Correctly evaluate path with params', () => {
+    expect(matchPath('/home', '/:pageName')).toBe(true);
+    
     expect(matchPath('/user/api/', '/user/api/:id')).toBe(false);
 
     expect(matchPath('/user/api/1245123', '/user/api/:id')).toBe(true);
