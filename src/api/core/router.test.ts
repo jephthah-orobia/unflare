@@ -26,7 +26,8 @@ describe('Router::canHandle()', () => {
       new Request('https://example.com/api/users', { method: 'GET' })
     );
     route1.post('/api/users', () => {
-      route1.res.send('Hello');
+      const { res } = route1;
+      res.send('Hello');
     });
     expect(route1.canHandle(req1)).toStrictEqual(false);
   });
@@ -38,10 +39,12 @@ describe('Router::canHandle()', () => {
     );
     route1
       .get('/api/users', () => {
-        route1.res.send('Hello');
+        const { res } = route1;
+        res.send('Hello');
       })
       .post('/api/users', () => {
-        route1.res.send('You ask to post?');
+        const { res } = route1;
+        res.send('You ask to post?');
       });
     expect(route1.canHandle(req1)).toStrictEqual(true);
   });
@@ -52,7 +55,8 @@ describe('Router::canHandle()', () => {
       new Request('https://example.com/api/users', { method: 'GET' })
     );
     route1.all('/api/users', () => {
-      route1.res.send('Method for All');
+      const { res } = route1;
+      res.send('Method for All');
     });
     expect(route1.canHandle(req1)).toStrictEqual(true);
   });
@@ -65,7 +69,8 @@ describe('Router::canHandle()', () => {
       })
     );
     route1.get('/api/users/:id/email/:email', () => {
-      route1.res.send('Method for All');
+      const { res } = route1;
+      res.send('Method for All');
     });
     expect(route1.canHandle(req1)).toStrictEqual(true);
   });
@@ -80,7 +85,8 @@ describe('Router::tryToHandle()', () => {
       })
     );
     route1.get('/api/users/:id/email/:email', () => {
-      route1.res.send('Method for All');
+      const { res } = route1;
+      res.send('Method for All');
     });
     expect(route1.canHandle(req1)).toStrictEqual(true);
     const res = new ResponseFactory('example.com');
@@ -132,11 +138,13 @@ describe('Router::tryToHandle()', () => {
 
     //console.dir(router);
     router.get('*', () => {
-      router.res.status(402).send(msg);
+      const { res } = router;
+      res.status(402).send(msg);
     });
 
     router.get('/', () => {
-      router.res.send('home');
+      const { res } = router;
+      res.send('home');
     });
 
     //console.dir(router);
@@ -171,5 +179,28 @@ describe('Router::tryToHandle()', () => {
     expect(res1.status).toBe(402);
     const resBody1 = await res1.text();
     expect(resBody1).toBe(msg);
+  });
+});
+
+describe('destructuring req, res, body, etc...', () => {
+  it('should be able to extract req, res, body, data, params, query, cookies from router', async () => {
+    const request = new Request('https://example.com/home');
+    const reqer = await Requester.fromRequest(request);
+    const resf = new ResponseFactory(reqer.url.hostname);
+
+    const router = new Router();
+
+    router.get('/:pageName/', () => {
+      const { params, res } = router;
+      res.send(params.pageName);
+    });
+
+    expect(router.canHandle(reqer)).toBe(true);
+
+    await router.tryToHandle(reqer, resf);
+
+    expect(resf.isDone).toBe(true);
+
+    expect(await resf.response.text()).toBe('home');
   });
 });

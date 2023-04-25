@@ -61,17 +61,28 @@ describe('Route::canHandle()', () => {
     expect(route1.canHandle(req1)).toStrictEqual(true);
   });
 
-  it('should return true for request whose path matches the route with params', () => {
+  it('should return true for request whose path matches the route with params', async () => {
     const route1 = new Route('/api/users/:id/email/:email');
-    const req1 = new Requester(
+    const route2 = new Route('/:pageName');
+    const req1 = await Requester.fromRequest(
       new Request('https://example.com/api/users/1234/email/test@test.test', {
+        method: 'GET',
+      })
+    );
+    const req2 = await Requester.fromRequest(
+      new Request('https://example.com/home', {
         method: 'GET',
       })
     );
     route1.get(() => {
       route1.res.send('Method for All');
     });
-    expect(route1.canHandle(req1)).toStrictEqual(true);
+    route2.get(() => {
+      const { params, res } = route2;
+      res.send(params.pageName);
+    });
+    expect(route1.canHandle(req1)).toBe(true);
+    expect(route2.canHandle(req2)).toBe(true);
   });
 
   it('should return true when path is wildcard `*`', async () => {

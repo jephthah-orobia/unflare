@@ -37,6 +37,26 @@ export abstract class RequestHandler {
     return this._res;
   }
 
+  get data(): Record<string, any> {
+    return this._req.data;
+  }
+
+  get params(): Record<string, any> {
+    return this._req.params;
+  }
+
+  get query(): Record<string, string> {
+    return this._req.query;
+  }
+
+  get body(): any {
+    return this._req.body;
+  }
+
+  get cookies(): Record<string, string> {
+    return this._req.cookies;
+  }
+
   protected methods: HTTPVerbs[] = [];
 
   protected handlers: (Function | RequestHandler)[] = [];
