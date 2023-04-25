@@ -1,14 +1,14 @@
 import { pathToRegExp } from '../params/param-patterns';
 
 /**
- * trims '/' if there are any.
+ * A normal path starts with / and should not have a slash on the end.
  *
  * In this module, [unflare](https://github.com/jephthah-orobia/unflare), a normal path shouldn't have a slash '/' in the start and end of the path.
  * @param path path to normalize
  * @returns a normalize path.
  */
 export const normalizePath = (path: string): string => {
-  if (path[0] === '/') path = path.substring(1);
+  if (path[0] !== '/') path = '/' + path;
   if (path.at(-1) === '/') path = path.substring(0, path.length - 1);
   return path;
 };

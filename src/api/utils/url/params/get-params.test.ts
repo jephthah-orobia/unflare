@@ -1,5 +1,7 @@
 import { describe, it, expect } from 'vitest';
 import { getParams } from './get-params';
+import { pathToRegExp } from './param-patterns';
+import { normalizePath } from '../path/match-path';
 
 describe('getParams()', () => {
   it('should return an empty object if there is no params in patterns', () => {
@@ -11,11 +13,17 @@ describe('getParams()', () => {
   });
 
   it('shoule return the correct params with correct keys', () => {
+    const para = getParams('/home', '/:page');
+    expect(para).toBeDefined();
+    expect(para.page).toBeDefined();
+    expect(para).toHaveProperty('page');
+    expect(para.page).toStrictEqual('home');
+
     const params = getParams('/api/users/124121', '/api/users/:id');
 
     expect(params).toBeDefined();
-    expect(params.id).toBeDefined();
     expect(params).toHaveProperty('id');
+    expect(params.id).toBeDefined();
     expect(params.id).toStrictEqual('124121');
 
     const params1 = getParams(

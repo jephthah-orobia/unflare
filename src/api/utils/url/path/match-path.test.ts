@@ -4,23 +4,23 @@ import { normalizePath, matchPath } from './match-path';
 describe('normalizePath() test', () => {
   it('should trim paths correctly', () => {
     expect(normalizePath('/api/users/1231/email/test@test.test')).toStrictEqual(
-      'api/users/1231/email/test@test.test'
+      '/api/users/1231/email/test@test.test'
     );
     expect(normalizePath('api/users/1231/email/test@test.test/')).toStrictEqual(
-      'api/users/1231/email/test@test.test'
+      '/api/users/1231/email/test@test.test'
     );
     expect(normalizePath('api/users/1231/email/test@test.test')).toStrictEqual(
-      'api/users/1231/email/test@test.test'
+      '/api/users/1231/email/test@test.test'
     );
 
     expect(normalizePath('/api/users/:id/email/:email')).toStrictEqual(
-      'api/users/:id/email/:email'
+      '/api/users/:id/email/:email'
     );
     expect(normalizePath('api/users/:id/email/:email/')).toStrictEqual(
-      'api/users/:id/email/:email'
+      '/api/users/:id/email/:email'
     );
     expect(normalizePath('api/users/:id/email/:email')).toStrictEqual(
-      'api/users/:id/email/:email'
+      '/api/users/:id/email/:email'
     );
   });
 });
@@ -38,7 +38,7 @@ describe('matchPath() test', () => {
 
   it('Correctly evaluate path with params', () => {
     expect(matchPath('/home', '/:pageName')).toBe(true);
-    
+
     expect(matchPath('/user/api/', '/user/api/:id')).toBe(false);
 
     expect(matchPath('/user/api/1245123', '/user/api/:id')).toBe(true);
