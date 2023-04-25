@@ -1,6 +1,7 @@
 name: Run-All-Test
 
 on:
+  - push
   - pull_request
   - workflow_call
 
