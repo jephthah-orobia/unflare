@@ -24,6 +24,7 @@ export class Route extends RequestHandler {
     const flatten = flattenArray(...args);
     for (const handler of flatten) {
       if (typeof handler == 'function') {
+        handler.method = HTTPVerbs.ALL;
         if (handler.length == 1) this.errorHandlers.push(handler);
         else this.handlers.push(handler);
       }

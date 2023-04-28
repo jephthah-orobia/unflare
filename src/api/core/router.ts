@@ -19,9 +19,16 @@ export class Router extends RequestHandler {
   use(...args: any[]): Router {
     const flatten = flattenArray(...args);
     for (const handler of flatten) {
-      if (typeof handler == 'function' && handler.length == 1)
-        this.errorHandlers.push(handler);
-      else this.handlers.push(handler);
+      if (typeof handler == 'function') {
+        this.methods.push(HTTPVerbs.ALL);
+        if (handler.length == 1) this.errorHandlers.push(handler);
+        else this.handlers.push(handler);
+      } else if (handler instanceof RequestHandler) {
+        handler.methods.forEach(
+          (e) => !this.methods.includes(e) && this.methods.push(e)
+        );
+        this.handlers.push(handler);
+      }
     }
     return this;
   }

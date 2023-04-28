@@ -2,6 +2,7 @@ import { describe, expect, it } from 'vitest';
 import { Router } from './router';
 import { Requester } from './requester';
 import { ResponseFactory } from './response-factory';
+import { Route } from './route';
 
 describe('Router Constructor', () => {
   it('Property test', () => {
@@ -73,6 +74,34 @@ describe('Router::canHandle()', () => {
       res.send('Method for All');
     });
     expect(route1.canHandle(req1)).toStrictEqual(true);
+  });
+
+  it('should return true if one of the handlers can handle it', async () => {
+    const router = new Router();
+    const home = new Route('/');
+    const aPage = new Route('/a-page');
+    aPage.get(() => aPage.res.send('This is a Page'));
+
+    const req_home = await Requester.fromRequest(
+      new Request('https://example.com/')
+    );
+    const req_page = await Requester.fromRequest(
+      new Request('https://example.com/a-page')
+    );
+    home.get(() => home.res.send('This is home'));
+    expect(home.canHandle(req_home)).toBe(true);
+
+    expect(router.canHandle(req_home)).toBe(false);
+    expect(router.canHandle(req_page)).toBe(false);
+
+    router.use(home);
+    expect(router.canHandle(req_home)).toBe(true);
+    expect(router.canHandle(req_page)).toBe(false);
+
+    router.use(aPage);
+
+    expect(router.canHandle(req_home)).toBe(true);
+    expect(router.canHandle(req_page)).toBe(true);
   });
 });
 

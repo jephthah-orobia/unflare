@@ -39,7 +39,14 @@ describe('Route::canHandle()', () => {
     expect(route1.canHandle(req1)).toStrictEqual(false);
   });
 
-  it('should return true if the request method is added to route', () => {
+  it('should return true if the request method is added to route', async () => {
+    const route = new Route('/');
+    route.get(() => {});
+    const req = await Requester.fromRequest(
+      new Request('https://example.com/')
+    );
+    expect(req.path).toBe('/');
+    expect(route.canHandle(req)).toBe(true);
     const route1 = new Route('/api/users');
     const req1 = new Requester(
       new Request('https://example.com/api/users', { method: 'GET' })

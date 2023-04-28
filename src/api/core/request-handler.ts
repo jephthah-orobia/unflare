@@ -57,7 +57,7 @@ export abstract class RequestHandler {
     return this._req.cookies;
   }
 
-  protected methods: HTTPVerbs[] = [];
+  public methods: HTTPVerbs[] = [];
 
   protected handlers: (Function | RequestHandler)[] = [];
   protected errorHandlers: ((err: any) => any | Promise<any>)[] = [];

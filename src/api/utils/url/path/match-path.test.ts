@@ -3,6 +3,7 @@ import { normalizePath, matchPath } from './match-path';
 
 describe('normalizePath() test', () => {
   it('should trim paths correctly', () => {
+    expect(normalizePath('/'), '/');
     expect(normalizePath('/api/users/1231/email/test@test.test')).toStrictEqual(
       '/api/users/1231/email/test@test.test'
     );
