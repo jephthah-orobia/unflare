@@ -1,6 +1,6 @@
 import { describe, it, expect, vi } from 'vitest';
 import { Unflare } from './unflare';
-import { RequestInspector } from './requester';
+import { RequestInspector } from './request-inspector';
 
 describe('Node/Environment/Engine Assumptions', () => {
   it('An async function will finish when all running functions inside it finishes', async () => {

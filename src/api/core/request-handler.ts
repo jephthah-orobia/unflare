@@ -1,6 +1,5 @@
 import { HTTPVerbs } from '../enums/http-verbs';
-import { getParams } from '../utils/url/params/get-params';
-import { RequestInspector } from './requester';
+import { RequestInspector } from './request-inspector';
 import { ResponseFactory } from './response-factory';
 
 /**

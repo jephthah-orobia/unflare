@@ -1,6 +1,6 @@
 import { RequestHandler } from './request-handler';
 import { matchPath, normalizePath } from '../utils/url/path/match-path';
-import { RequestInspector } from './requester';
+import { RequestInspector } from './request-inspector';
 import { HTTPVerbs } from '../enums/http-verbs';
 import { flattenArray } from '../utils/fn/flatten-array';
 import { getParams } from '../utils/url/params/get-params';

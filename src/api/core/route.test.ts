@@ -1,6 +1,6 @@
 import { describe, it, expect } from 'vitest';
 import { RequestHandler } from './request-handler';
-import { RequestInspector } from './requester';
+import { RequestInspector } from './request-inspector';
 import { ResponseFactory } from './response-factory';
 import { Route } from './route';
 

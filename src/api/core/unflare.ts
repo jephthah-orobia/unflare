@@ -1,4 +1,4 @@
-import { RequestInspector } from './requester';
+import { RequestInspector } from './request-inspector';
 import { ResponseFactory } from './response-factory';
 import { Router } from './router';
 

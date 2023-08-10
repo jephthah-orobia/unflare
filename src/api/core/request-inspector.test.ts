@@ -1,6 +1,6 @@
 import { describe, it, expect } from 'vitest';
 import { HTTPVerbs } from '../enums/http-verbs';
-import { RequestInspector } from './requester';
+import { RequestInspector } from './request-inspector';
 import { serialize } from 'cookie';
 
 describe('Requester Class', () => {

@@ -1,6 +1,6 @@
 import { Route } from './route';
 import { RequestHandler } from './request-handler';
-import { RequestInspector } from './requester';
+import { RequestInspector } from './request-inspector';
 import { HTTPVerbs } from '../enums/http-verbs';
 import { flattenArray } from '../utils/fn/flatten-array';
 
