@@ -11,7 +11,7 @@
 ## Learn by Examples
 
 1. [Hello {user}!](./examples/hello-user.md)
-   - destructuring Unflare()
+   - declare what you only need from request via destructuring
    - learn how to do basic routing and managing parameters, query, and body
    - demonstrate unflare's ability to manipulate cookies to authenticate users.
 2. More examples soon.
