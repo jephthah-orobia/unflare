@@ -1,13 +1,13 @@
 import { HTTPVerbs } from '../enums/http-verbs';
 import { getParams } from '../utils/url/params/get-params';
-import { Requester } from './requester';
+import { RequestInspector } from './requester';
 import { ResponseFactory } from './response-factory';
 
 /**
  * A Generic Class for Handling Request. Intended to be inherited by Route and Router
  */
 export abstract class RequestHandler {
-  abstract canHandle(req: Requester): boolean;
+  abstract canHandle(req: RequestInspector): boolean;
   abstract use(...args: Function[]): any;
   abstract _handle_methods(method: HTTPVerbs, ...args: any[]): any;
   protected abstract handleRequest(): void | Promise<void>;
@@ -18,7 +18,7 @@ export abstract class RequestHandler {
   }
 
   private _env?: any;
-  private _req!: Requester;
+  private _req!: RequestInspector;
   private _res!: ResponseFactory;
 
   /**
@@ -29,7 +29,7 @@ export abstract class RequestHandler {
     return this._env;
   }
 
-  get req(): Requester {
+  get req(): RequestInspector {
     return this._req;
   }
 
@@ -63,7 +63,7 @@ export abstract class RequestHandler {
   protected errorHandlers: ((err: any) => any | Promise<any>)[] = [];
 
   tryToHandle = async (
-    req: Requester,
+    req: RequestInspector,
     res: ResponseFactory,
     env?: any
   ): Promise<void> => {

@@ -1,6 +1,6 @@
 import { describe, it, expect } from 'vitest';
 import { RequestHandler } from './request-handler';
-import { Requester } from './requester';
+import { RequestInspector } from './requester';
 import { ResponseFactory } from './response-factory';
 import { Route } from './route';
 
@@ -30,7 +30,7 @@ describe('Route contrustor', () => {
 describe('Route::canHandle()', () => {
   it('should return false if the request method is not added to route', () => {
     const route1 = new Route('/api/users');
-    const req1 = new Requester(
+    const req1 = new RequestInspector(
       new Request('https://example.com/api/users', { method: 'GET' })
     );
     route1.post(() => {
@@ -42,13 +42,13 @@ describe('Route::canHandle()', () => {
   it('should return true if the request method is added to route', async () => {
     const route = new Route('/');
     route.get(() => {});
-    const req = await Requester.fromRequest(
+    const req = await RequestInspector.fromRequest(
       new Request('https://example.com/')
     );
     expect(req.path).toBe('/');
     expect(route.canHandle(req)).toBe(true);
     const route1 = new Route('/api/users');
-    const req1 = new Requester(
+    const req1 = new RequestInspector(
       new Request('https://example.com/api/users', { method: 'GET' })
     );
     route1.get(() => {
@@ -59,7 +59,7 @@ describe('Route::canHandle()', () => {
 
   it('should return true if the route has a handler with method ALL', () => {
     const route1 = new Route('/api/users');
-    const req1 = new Requester(
+    const req1 = new RequestInspector(
       new Request('https://example.com/api/users', { method: 'GET' })
     );
     route1.all(() => {
@@ -71,12 +71,12 @@ describe('Route::canHandle()', () => {
   it('should return true for request whose path matches the route with params', async () => {
     const route1 = new Route('/api/users/:id/email/:email');
     const route2 = new Route('/:pageName');
-    const req1 = await Requester.fromRequest(
+    const req1 = await RequestInspector.fromRequest(
       new Request('https://example.com/api/users/1234/email/test@test.test', {
         method: 'GET',
       })
     );
-    const req2 = await Requester.fromRequest(
+    const req2 = await RequestInspector.fromRequest(
       new Request('https://example.com/home', {
         method: 'GET',
       })
@@ -94,7 +94,7 @@ describe('Route::canHandle()', () => {
 
   it('should return true when path is wildcard `*`', async () => {
     const route1 = new Route('*');
-    const req1 = new Requester(
+    const req1 = new RequestInspector(
       new Request('https://example.com/api/users/1234/email/test@test.test', {
         method: 'GET',
       })
@@ -109,7 +109,7 @@ describe('Route::canHandle()', () => {
 describe('Route::tryToHandle()', () => {
   it('should set the params property of the requester and set the isDone property of the ResponseFactory given valid handlers', async () => {
     const route1 = new Route('/api/users/:id/email/:email');
-    const req1 = new Requester(
+    const req1 = new RequestInspector(
       new Request('https://example.com/api/users/1234/email/test@test.test', {
         method: 'GET',
       })
@@ -138,7 +138,7 @@ describe('Route::tryToHandle()', () => {
       encoder.encode(JSON.stringify(bodyToSend)).length.toString()
     );
 
-    const req1 = await Requester.fromRequest(reqO);
+    const req1 = await RequestInspector.fromRequest(reqO);
 
     route1.post(() => {
       route1.res.send(JSON.stringify(route1.req.body));
@@ -162,7 +162,7 @@ describe('Route::tryToHandle()', () => {
     });
 
     const resf = new ResponseFactory('example.com');
-    const requester = new Requester(
+    const requester = new RequestInspector(
       new Request('https://example.com/somepaththatmightnotexist', {
         method: 'GET',
       })

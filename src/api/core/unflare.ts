@@ -1,4 +1,4 @@
-import { Requester } from './requester';
+import { RequestInspector } from './requester';
 import { ResponseFactory } from './response-factory';
 import { Router } from './router';
 
@@ -62,7 +62,7 @@ export class Unflare extends Router {
 
     // call pre hooks
 
-    const reqer = await Requester.fromRequest(req, this.strict);
+    const reqer = await RequestInspector.fromRequest(req, this.strict);
     const reser = new ResponseFactory(reqer.url.host);
 
     let err: any = false;

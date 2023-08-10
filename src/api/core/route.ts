@@ -1,6 +1,6 @@
 import { RequestHandler } from './request-handler';
 import { matchPath, normalizePath } from '../utils/url/path/match-path';
-import { Requester } from './requester';
+import { RequestInspector } from './requester';
 import { HTTPVerbs } from '../enums/http-verbs';
 import { flattenArray } from '../utils/fn/flatten-array';
 import { getParams } from '../utils/url/params/get-params';
@@ -10,7 +10,7 @@ export class Route extends RequestHandler {
     super();
   }
 
-  canHandle(req: Requester): boolean {
+  canHandle(req: RequestInspector): boolean {
     if (
       this.pathOrPattern !== '' &&
       (this.methods.includes(req.method) ||

@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest';
 import { Router } from './router';
-import { Requester } from './requester';
+import { RequestInspector } from './requester';
 import { ResponseFactory } from './response-factory';
 import { Route } from './route';
 
@@ -23,7 +23,7 @@ describe('Router Constructor', () => {
 describe('Router::canHandle()', () => {
   it('should return false if the request method is not added to router', () => {
     const route1 = new Router();
-    const req1 = new Requester(
+    const req1 = new RequestInspector(
       new Request('https://example.com/api/users', { method: 'GET' })
     );
     route1.post('/api/users', () => {
@@ -35,7 +35,7 @@ describe('Router::canHandle()', () => {
 
   it('should return true if the request method is added to router', () => {
     const route1 = new Router();
-    const req1 = new Requester(
+    const req1 = new RequestInspector(
       new Request('https://example.com/api/users', { method: 'GET' })
     );
     route1
@@ -52,7 +52,7 @@ describe('Router::canHandle()', () => {
 
   it('should return true if the router has a handler with method ALL', () => {
     const route1 = new Router();
-    const req1 = new Requester(
+    const req1 = new RequestInspector(
       new Request('https://example.com/api/users', { method: 'GET' })
     );
     route1.all('/api/users', () => {
@@ -64,7 +64,7 @@ describe('Router::canHandle()', () => {
 
   it('should return true for request whose path matches the router with params', () => {
     const route1 = new Router();
-    const req1 = new Requester(
+    const req1 = new RequestInspector(
       new Request('https://example.com/api/users/1234/email/test@test.test', {
         method: 'GET',
       })
@@ -82,10 +82,10 @@ describe('Router::canHandle()', () => {
     const aPage = new Route('/a-page');
     aPage.get(() => aPage.res.send('This is a Page'));
 
-    const req_home = await Requester.fromRequest(
+    const req_home = await RequestInspector.fromRequest(
       new Request('https://example.com/')
     );
-    const req_page = await Requester.fromRequest(
+    const req_page = await RequestInspector.fromRequest(
       new Request('https://example.com/a-page')
     );
     home.get(() => home.res.send('This is home'));
@@ -108,7 +108,7 @@ describe('Router::canHandle()', () => {
 describe('Router::tryToHandle()', () => {
   it('should set the params property of the requester and set the isDone property of the responder given valid handlers', async () => {
     const route1 = new Router();
-    const req1 = new Requester(
+    const req1 = new RequestInspector(
       new Request('https://example.com/api/users/1234/email/test@test.test', {
         method: 'GET',
       })
@@ -147,15 +147,15 @@ describe('Router::tryToHandle()', () => {
       route2.res.send('users here');
     });
 
-    await route2.tryToHandle(new Requester(req), reser1);
+    await route2.tryToHandle(new RequestInspector(req), reser1);
     expect(reser1.isDone).toBe(true);
     const res1 = reser1.response;
     expect(await res1?.text()).toStrictEqual('Hello World');
-    await route2.tryToHandle(new Requester(req_1), reser2);
+    await route2.tryToHandle(new RequestInspector(req_1), reser2);
     expect(reser2.isDone).toBe(true);
     const res2 = reser2.response;
     expect(await res2?.text()).toStrictEqual('keeser');
-    await route2.tryToHandle(new Requester(req_2), reser3);
+    await route2.tryToHandle(new RequestInspector(req_2), reser3);
     expect(reser3.isDone).toBe(true);
     const res3 = reser3.response;
     expect(await res3?.text()).toStrictEqual('users here');
@@ -179,11 +179,11 @@ describe('Router::tryToHandle()', () => {
     //console.dir(router);
     const responder = new ResponseFactory('example.com');
     const responder1 = new ResponseFactory('example.com');
-    const requester = new Requester(
+    const requester = new RequestInspector(
       new Request('https://example.com/somepaththatmightnotexist')
     );
 
-    const requester1 = await Requester.fromRequest(
+    const requester1 = await RequestInspector.fromRequest(
       new Request('https://example.com/')
     );
 
@@ -214,7 +214,7 @@ describe('Router::tryToHandle()', () => {
 describe('destructuring req, res, body, etc...', () => {
   it('should be able to extract req, res, body, data, params, query, cookies from router', async () => {
     const request = new Request('https://example.com/home');
-    const reqer = await Requester.fromRequest(request);
+    const reqer = await RequestInspector.fromRequest(request);
     const resf = new ResponseFactory(reqer.url.hostname);
 
     const router = new Router();

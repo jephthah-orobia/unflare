@@ -1,6 +1,6 @@
 import { describe, it, expect } from 'vitest';
 import { HTTPVerbs } from '../enums/http-verbs';
-import { Requester } from './requester';
+import { RequestInspector } from './requester';
 import { serialize } from 'cookie';
 
 describe('Requester Class', () => {
@@ -18,7 +18,7 @@ describe('Requester Class', () => {
         }
       );
 
-      const reqer = await Requester.fromRequest(req);
+      const reqer = await RequestInspector.fromRequest(req);
 
       expect(reqer).toBeDefined();
       expect(reqer).toHaveProperty('method');
@@ -45,7 +45,7 @@ describe('Requester Class', () => {
         'Content-Length',
         encoder.encode(JSON.stringify(obj)).length.toString()
       );
-      const reqer = await Requester.fromRequest(req);
+      const reqer = await RequestInspector.fromRequest(req);
 
       expect(reqer).toBeDefined();
       expect(reqer).toHaveProperty('body');
@@ -60,7 +60,7 @@ describe('Requester Class', () => {
         method: 'GET',
       });
       req.headers.set('Cookie', ser);
-      const reqer = await Requester.fromRequest(req);
+      const reqer = await RequestInspector.fromRequest(req);
 
       expect(reqer.cookies).toBeDefined();
       expect(reqer.cookies.user).toBe(JSON.stringify(obj));

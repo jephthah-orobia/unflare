@@ -1,11 +1,11 @@
 import { Route } from './route';
 import { RequestHandler } from './request-handler';
-import { Requester } from './requester';
+import { RequestInspector } from './requester';
 import { HTTPVerbs } from '../enums/http-verbs';
 import { flattenArray } from '../utils/fn/flatten-array';
 
 export class Router extends RequestHandler {
-  canHandle(req: Requester): boolean {
+  canHandle(req: RequestInspector): boolean {
     if (
       this.methods.includes(req.method) ||
       this.methods.includes(HTTPVerbs.ALL)

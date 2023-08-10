@@ -1,6 +1,6 @@
 import { describe, it, expect, vi } from 'vitest';
 import { Unflare } from './unflare';
-import { Requester } from './requester';
+import { RequestInspector } from './requester';
 
 describe('Node/Environment/Engine Assumptions', () => {
   it('An async function will finish when all running functions inside it finishes', async () => {
@@ -124,7 +124,7 @@ describe('fetch()', () => {
       'I handled this! Error: This page throws an error!'
     );
 
-    expect(app.canHandle(new Requester(req1))).toBe(true);
+    expect(app.canHandle(new RequestInspector(req1))).toBe(true);
     expect(res1).toBeDefined();
     expect(res1.status).toBe(403);
     expect(await res1.text()).toBe('I handled this! Error: Not Found!');

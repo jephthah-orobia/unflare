@@ -3,7 +3,10 @@ import { parseBody } from '../utils/request/parse-body';
 import { parseQuery } from '../utils/url/query/parse-query';
 import { parse as parseCookie } from 'cookie';
 
-export class Requester {
+/**
+ * this class inspects the `Request` and exposes its details
+ */
+export class RequestInspector {
   //#region privates
   #url: URL;
   #query: Record<string, string>;
@@ -15,7 +18,7 @@ export class Requester {
   //#endregion
 
   /**
-   * Instance of this class is use by unflare as first argument for middlewares and route callbacks
+   *
    * @param request cloudflare workers' Request object
    */
   constructor(
@@ -33,8 +36,8 @@ export class Requester {
   static fromRequest = async (
     req: Request,
     strict: boolean = false
-  ): Promise<Requester> => {
-    const reqer = new Requester(req, strict);
+  ): Promise<RequestInspector> => {
+    const reqer = new RequestInspector(req, strict);
     reqer.body = await parseBody(req);
     return reqer;
   };
