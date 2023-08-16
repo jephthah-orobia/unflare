@@ -6,9 +6,8 @@ export const app = new Unflare();
 
 app.get('/', () => {
   const { req, res } = app;
-  res.headers.set('Content-Type', 'text/html');
   if (!req.cookies.user) {
-    return res.send(`
+    return res.html(`
       <!DOCTYPE html>
       <html>
         <head>
@@ -25,7 +24,7 @@ app.get('/', () => {
     `);
   } else {
     const user = JSON.parse(req.cookies.user);
-    return res.send(`
+    return res.html(`
       <!DOCTYPE html>
       <html>
         <head>
