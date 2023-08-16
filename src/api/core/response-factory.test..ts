@@ -95,10 +95,30 @@ describe('ResponseFactory', () => {
   });
 
   describe('.html()', () => {
-    it.todo('should call .send');
-    it.todo(
-      'should set the appropriate content-type for text/html on the header'
-    );
+    it('should call .send', async () => {
+      const res = new ResponseFactory('example.com');
+      const tosend = `
+        <html>
+          <body> Some Contetnt </body>
+        </html>
+      `;
+      expect(res.isDone).toBe(false);
+      res.html(tosend);
+      expect(res.isDone).toBe(true);
+    });
+    it('should set the header to the appropriate content-type for json', async () => {
+      const res = new ResponseFactory('example.com');
+      const tosend = `
+        <html>
+          <body> Some Contetnt </body>
+        </html>
+      `;
+      res.html(tosend);
+      const resp = res.response;
+      const contentType = resp!.headers.get('Content-Type');
+      expect(contentType).not.toBeNull();
+      expect(contentType).toBe('text/html; charset=UTF-8');
+    });
   });
 
   describe('.cookie()', () => {

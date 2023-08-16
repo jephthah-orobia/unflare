@@ -6,8 +6,17 @@ export class ResponseFactory {
   statusText: string | undefined;
   headers: Map<string, string> = new Map<string, string>();
   #body: string | Uint8Array | any;
+  #contentType: string = 'text/plain;charset=UTF-8';
 
   constructor(private host: string) {}
+
+  get contentType() {
+    return this.#contentType;
+  }
+
+  set contentType(newType: string) {
+    this.#contentType = newType;
+  }
 
   get body() {
     return this.#body;
@@ -39,16 +48,31 @@ export class ResponseFactory {
 
   send(body?: any) {
     if (!this.isDone) {
-      this.#body = body;
-      this.#isDone = true;
+      if (this.#body)
+        try {
+          this.#body += body;
+        } catch (e) {
+          this.#body = body;
+        } finally {
+          this.end();
+        }
+      else {
+        this.#body = body;
+        this.end();
+      }
     } else {
       console.error('Can not change response once sent.');
     }
   }
 
   json(obj: any) {
-    this.headers.set('Content-Type', 'application/json; charset=UTF-8');
+    this.contentType = 'application/json; charset=UTF-8';
     this.send(JSON.stringify(obj));
+  }
+
+  html(src: string) {
+    this.contentType = 'text/html; charset=utf-8';
+    this.send(src);
   }
 
   /**
@@ -111,6 +135,7 @@ export class ResponseFactory {
       console.error('.end() or .send() was already called before.');
       return;
     }
+    this.headers.set('Content-Type', this.contentType);
     this.#isDone = true;
   }
 }
