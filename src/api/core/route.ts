@@ -20,13 +20,13 @@ export class Route extends RequestHandler {
     return false;
   }
 
-  use(...args: any[]): Route {
+  use(...args: Function[]): Route {
     const flatten = flattenArray(...args);
     for (const handler of flatten) {
       if (typeof handler == 'function') {
         handler.method = HTTPVerbs.ALL;
-        if (handler.length == 1) this.errorHandlers.push(handler);
-        else this.handlers.push(handler);
+        if (handler.length < 2) this.handlers.push(handler);
+        else this.errorHandlers.push(handler);
       }
     }
     return this;
@@ -41,7 +41,7 @@ export class Route extends RequestHandler {
 
     for (const handler of flattenArgs) {
       if (typeof handler == 'function') {
-        if (handler.length != 1) {
+        if (handler.length < 2) {
           handler.method = method;
           this.handlers.push(handler);
         } else this.errorHandlers.push(handler);
@@ -57,7 +57,7 @@ export class Route extends RequestHandler {
       if (typeof handler == 'function') {
         this.req.params = getParams(this.req.path, this.pathOrPattern);
         try {
-          await handler();
+          await handler(this);
         } catch (e) {
           await this.handleError(e);
           if (!this.res.isDone) {

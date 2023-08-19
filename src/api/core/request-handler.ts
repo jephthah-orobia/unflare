@@ -7,7 +7,7 @@ import { ResponseFactory } from './response-factory';
  */
 export abstract class RequestHandler {
   abstract canHandle(req: RequestInspector): boolean;
-  abstract use(...args: Function[]): any;
+  abstract use(...args: (Function | RequestHandler)[]): any;
   abstract _handle_methods(method: HTTPVerbs, ...args: any[]): any;
   protected abstract handleRequest(): void | Promise<void>;
 
@@ -63,7 +63,11 @@ export abstract class RequestHandler {
   public methods: HTTPVerbs[] = [];
 
   protected handlers: (Function | RequestHandler)[] = [];
-  protected errorHandlers: ((err: any) => any | Promise<any>)[] = [];
+
+  protected errorHandlers: ((
+    app: RequestHandler,
+    err: any
+  ) => any | Promise<any>)[] = [];
 
   tryToHandle = async (
     req: RequestInspector,
@@ -81,7 +85,7 @@ export abstract class RequestHandler {
   protected async handleError(err: any) {
     for (const eHandler of this.errorHandlers) {
       if (this.res.isDone || !err) break;
-      if (typeof eHandler == 'function') await eHandler.apply(this, [err]);
+      if (typeof eHandler == 'function') await eHandler(this, err);
     }
   }
 

@@ -105,8 +105,8 @@ describe('fetch()', () => {
       throw new Error('Not Found!');
     });
 
-    app.use((err: any) => {
-      app.res.status(403).send('I handled this! ' + err);
+    app.use((ap: Unflare, err: any) => {
+      ap.res.status(403).send('I handled this! ' + err);
     });
 
     //@ts-ignore
