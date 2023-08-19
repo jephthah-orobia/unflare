@@ -52,6 +52,10 @@ export abstract class RequestHandler {
     return this._req.body;
   }
 
+  get headers(): any {
+    return this._req.request.headers;
+  }
+
   get cookies(): Record<string, string> {
     return this._req.cookies;
   }
