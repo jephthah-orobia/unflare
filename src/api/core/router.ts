@@ -16,13 +16,13 @@ export class Router extends RequestHandler {
     return false;
   }
 
-  use(...args: any[]): Router {
+  use(...args: (Function | RequestHandler)[]): Router {
     const flatten = flattenArray(...args);
     for (const handler of flatten) {
       if (typeof handler == 'function') {
         this.methods.push(HTTPVerbs.ALL);
-        if (handler.length == 1) this.errorHandlers.push(handler);
-        else this.handlers.push(handler);
+        if (handler.length < 2) this.handlers.push(handler);
+        else this.errorHandlers.push(handler);
       } else if (handler instanceof RequestHandler) {
         handler.methods.forEach(
           (e) => !this.methods.includes(e) && this.methods.push(e)
@@ -49,7 +49,7 @@ export class Router extends RequestHandler {
     } else {
       for (const handler of handlers) {
         if (typeof handler == 'function') {
-          if (handler.length != 1) {
+          if (handler.length < 2) {
             handler.method = method;
             this.handlers.push(handler);
           } else this.errorHandlers.push(handler);

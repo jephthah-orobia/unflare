@@ -1,7 +1,7 @@
+import { RequestHandler } from '../../../../dist/api/core/request-handler';
 import { SerializableError } from '../api/errors/serializable-error';
-import app from '../index';
 
-export const CustomErrorHandler = (err: any) => {
+export const CustomErrorHandler = (app: RequestHandler, err: any) => {
   const { res } = app;
   console.log('Custom Error Handler is called!');
   if (!err) {
