@@ -7,9 +7,6 @@ export interface UnflareOptions {
 }
 
 export class Unflare extends Router {
-  #pre_fetch: Function[] = [];
-  #post_fetch: Function[] = [];
-
   strict: boolean = false;
 
   constructor(
@@ -41,14 +38,6 @@ export class Unflare extends Router {
     this.createNotFoundResponse = creator;
   }
 
-  beforeEach(...args: Function[]): void {
-    this.#pre_fetch.push(...args);
-  }
-
-  afterEach(...args: Function[]): void {
-    this.#post_fetch.push(...args);
-  }
-
   static Router(): Router {
     return new Router();
   }
@@ -68,9 +57,7 @@ export class Unflare extends Router {
     let err: any = false;
 
     try {
-      this.#pre_fetch.forEach(async (e) => await e.apply(this));
       await this.tryToHandle(reqer, reser, env);
-      this.#post_fetch.forEach(async (e) => await e.apply(this));
     } catch (e: any) {
       console.error(e);
       err = e;

@@ -197,4 +197,31 @@ describe('.beforeEach() and .afterEach()', () => {
 
     expect(sequence).toBe('---22b2b2');
   });
+
+  it('req, res, ENV and env should defined during execution of .beforeEach!', () => {
+    const app = new Unflare();
+
+    app.get('/', () => {
+      const { req } = app;
+      expect(req.data.beforeEachRunTimes).toBe(1);
+    });
+
+    app.beforeEach(() => {
+      const { req, res, env, ENV } = app;
+      expect(req).toBeDefined();
+      expect(res).toBeDefined();
+      expect(env).toBeDefined();
+      expect(ENV).toBeDefined();
+      expect(env.SOME_VARS).toBe('YO!');
+      if (!req.data.beforeEachRunTimes) req.data.beforeEachRunTimes = 0;
+
+      req.data.beforeEachRunTimes += 1;
+    });
+
+    const sample_request = new Request('http://example.com/', {
+      method: 'GET',
+    });
+
+    app.fetch(sample_request, { SOME_VARS: 'YO!' });
+  });
 });

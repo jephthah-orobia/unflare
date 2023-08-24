@@ -10,13 +10,15 @@ export abstract class RequestHandler {
   abstract use(...args: (Function | RequestHandler)[]): any;
   abstract _handle_methods(method: HTTPVerbs, ...args: any[]): any;
   protected abstract handleRequest(): void | Promise<void>;
+  #pre_fetch: Function[] = [];
+  #post_fetch: Function[] = [];
 
   constructor() {
     if (!this.canHandle || !this._handle_methods)
       throw new Error('Abstract classes cannot be instantiated');
   }
 
-  private _env?: any;
+  private _env?: Record<string, string>;
   private _req!: RequestInspector;
   private _res!: ResponseFactory;
 
@@ -24,8 +26,12 @@ export abstract class RequestHandler {
    * - contains the `env` object that holds the KV bindings.
    * - read more obout [KV](https://developers.cloudflare.com/workers/runtime-apis/kv/)
    */
-  get ENV(): any {
-    return this._env;
+  get ENV(): Record<string, string> {
+    return this._env || {};
+  }
+
+  get env(): Record<string, string> {
+    return this._env || {};
   }
 
   get req(): RequestInspector {
@@ -69,6 +75,14 @@ export abstract class RequestHandler {
     err: any
   ) => any | Promise<any>)[] = [];
 
+  beforeEach(...args: Function[]): void {
+    this.#pre_fetch.push(...args);
+  }
+
+  afterEach(...args: Function[]): void {
+    this.#post_fetch.push(...args);
+  }
+
   tryToHandle = async (
     req: RequestInspector,
     res: ResponseFactory,
@@ -79,7 +93,10 @@ export abstract class RequestHandler {
     this._res = res;
     this._req = req;
     this._env = env;
+    this.#pre_fetch.forEach(async (e) => await e());
     await this.handleRequest();
+
+    this.#post_fetch.forEach(async (e) => await e());
   };
 
   protected async handleError(err: any) {
