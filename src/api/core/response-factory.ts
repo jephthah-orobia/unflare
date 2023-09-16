@@ -71,7 +71,7 @@ export class ResponseFactory {
   }
 
   html(src: string) {
-    this.contentType = 'text/html; charset=utf-8';
+    this.contentType = 'text/html; charset=UTF-8';
     this.send(src);
   }
 
