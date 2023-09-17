@@ -152,6 +152,25 @@ describe('ResponseFactory', () => {
     });
   });
 
+  describe('.header()', () => {
+    it('should set the header', () => {
+      const res = new ResponseFactory('example.com');
+      res.header('user', 'someone').header('that', 'this');
+      res.send();
+      const resp = res.response;
+      expect(resp!.headers.get('user')).toBe('someone');
+      expect(resp!.headers.get('that')).toBe('this');
+    });
+    it('should not be able to set headers when the res is done.', () => {
+      const res = new ResponseFactory('example.com');
+      res.send();
+      res.header('user', 'someone').header('that', 'this');
+      const resp = res.response;
+      expect(resp!.headers.get('user')).toBeNull();
+      expect(resp!.headers.get('that')).toBeNull();
+    });
+  });
+
   describe('.end()', () => {
     it('should set .isDone to true', () => {
       const res = new ResponseFactory('example.com');
