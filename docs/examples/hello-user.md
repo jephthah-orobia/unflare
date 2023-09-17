@@ -1,6 +1,6 @@
 # Hello { user }!: A Step-by-Step Guide
 
-This guide will walk you through the process of creating a simple “Hello, {user}!” site using Unflare, leveraging the power of Cloudflare’s worker. You can view the final result of this tutorial [here](https://example-hello-user.unflare.workers.dev/)
+This guide will walk you through the process of creating a simple “Hello, {user}!” site using Unflare, leveraging the power of Cloudflare’s worker. You can view the final result of this tutorial [here](https://example-hello-user.unflare.workers.dev/).
 
 ## Getting Started
 
@@ -16,6 +16,7 @@ In this tutorial, you will:
 2. Understand the concept of routing requests.
 3. Learn how to acquire necessary assets (i.e., `req` and `res`) via object destructuring.
 4. Understand `req` as a `RequestInspector` and `res` as a `ResponseFactory`.
+5. Retrieve information by users when they submit a form.
 5. Learn how to set cookies.
 6. Deploy your “Hello, {user}!” site.
 
@@ -117,7 +118,7 @@ Here are some of the routes we'll be working with:
 
 While these routes could technically be consolidated into a single file, we will distribute them across multiple files to demonstrate the benefits of a modular approach. Specifically, we will create a separate route for the landing page and a router to handle both sign-in and sign-out operations. This strategy not only enhances code readability but also facilitates future code analysis and debugging.
 
-Next, we’ll create a directory named `handlers`. Within this directory, we’ll add two files: `home.ts` and `sign-in-out.ts`. Your project directory should now look like this:
+Next, we’ll create a directory named `handlers`. Within this directory, we’ll add two files: `home.ts` and `signing.ts`. Your project directory should now look like this:
 
 ```
 📂 your-project-folder
@@ -125,7 +126,7 @@ Next, we’ll create a directory named `handlers`. Within this directory, we’l
 ├── 📂 src
 |   ├── 📂 handlers
 │   |    ├── 📄 home.ts
-│   |    └── 📄 sign-in-out.ts
+│   |    └── 📄 signing.ts
 |   └── index.ts
 └── 📄 other files...
 ```
@@ -338,3 +339,164 @@ HomeRoute.get(() => {
 ```
 
 > `return` statement isn't really needed here but make it a habit to call `return` when you want your function to end to avoid running codes after that point.
+
+### Configuring Cookies
+
+As discussed in the previous section, we'll utilize cookies to identify the user. Begin by opening `signing.ts`, importimg `Router` from `unflare`, and defining an instance of it as a constant `router`.
+
+```typescript
+import { Router } from 'unflare';
+
+const router = new Router();
+```
+
+Contrary to `Route`, `Router` doesn't need an argument to instantiate. A `Router` is essentially a collection of `Route` or `Routers`, its primary function is to group related handlers together. In this instance, we're grouping `sign-in` and `sign-out` into a single router. Creating routes within a router is identical to doing so with an `Unflare` instance. Let's proceed with creating the remaining routes:
+
+```typescript
+router.post('/sign-in', () => {
+  //this will handle signing-in
+});
+
+router.get('/sign-out', () => {
+  //this will handle signing-out
+});
+```
+
+#### Understanding `query` vs `body` vs `params`
+
+When a user submits a form, if it's via GET, it will be stored in `query`. If it's via POST, it will be placed in the body, hence we can access it on `body`. `params`, on the other hand, are information obtained from the path. For more information on `params`, please refer to this [link](../api/params.md).
+
+Let's retrieve `body` since the user data is passed via POST and let us also acquire `res`. If `body.name` is undefined, it indicates a client error, so we should set the status code to `400` and display a web page. Otherwise, create an random id and bundle it with the `body.name` to form a JSON object that we will stringify and set as the value for the `user` cookie as shown:
+
+```typescript
+router.get('/sign-in', () => {
+  const { body, res } = router;
+  if (!body.name)
+    return res.status(400).html(`
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>I did not hear you say your name.</title>
+  </head>
+  <body style="
+    background-color: #333333;
+    ">
+    <div style="
+      background-color: rgba(240, 240, 240, 0.8);
+      width: 400px;
+      padding: 30px 20px;
+      border-radius: 20px;
+      margin: 50px auto;
+      text-align: center;
+    ">
+      <h1>I did not hear you say your name.</h1>
+      <h2>Let's try it again in <span style="color: red" id="counter">3</span> seconds.</h2>
+      <h3>If you're in a hurry or this doesn't automatically redirects, <a href="/">click here</a></h3>
+    </div>
+    <script>
+      window.onload = ()=>{
+        let counter = 2;
+        const countdownElement = document.getElementById('counter');
+
+        const countdown = setInterval(() => {
+          countdownElement.textContent = counter;
+          counter--;
+          
+          if (counter < 0) {
+            clearInterval(countdown);
+            window.location.href = '/';
+          }
+        }, 1000);
+      }
+    </script>
+  </body>
+</html>`);
+  const id = crypto.randomUUID();
+  res.cookie('user', JSON.stringify({ name: body.name, id }));
+  res.status(302, 'Redirecting').headers.set('Location', '/');
+  return res.send();
+});
+```
+
+We set cookies by calling `cookie(name, value)` method of `res`. We can easily set the status code by calling `status` method on `res`. It is chainable so after setting the status code, you can immediately perform another action. In the code above, we use status code 302 to redirect the request.
+
+Now handling `/sign-out` is quite straightforward. Simply set the cookies' `user` to an empty string then redirect as shown:
+
+```typescript
+router.get('/sign-out', () => {
+  const { res } = router;
+  res.cookie('user', '');
+  res.status(302, 'Redirecting').headers.set('Location', '/');
+  return res.send();
+});
+```
+
+Our `router` is not yet exported. Export the `router` with the name `SingingRouter` at the very bottom of the file:
+
+```typescript
+export { router as SigningRouter };
+```
+This concludes your revised version of `signing.ts`. Your final code int the file should look like this:
+
+```typescript
+import { Router } from 'unflare';
+
+const router = new Router();
+
+router.post('/sign-in', () => {
+  const { body, res } = router;
+  if (!body.name)
+    return res.status(400).html(`<!DOCTYPE html>
+<html>
+  <head>
+    <title>I did not hear you say your name.</title>
+  </head>
+  <body style="
+    background-color: #333333;
+    ">
+    <div style="
+      background-color: rgba(240, 240, 240, 0.8);
+      width: 400px;
+      padding: 30px 20px;
+      border-radius: 20px;
+      margin: 50px auto;
+      text-align: center;
+    ">
+      <h1>I did not hear you say your name.</h1>
+      <h2>Let's try it again in <span style="color: red" id="counter">3</span> seconds.</h2>
+      <h3>If you're in a hurry or this doesn't automatically redirects, <a href="/">click here</a></h3>
+    </div>
+    <script>
+      window.onload = ()=>{
+        let counter = 2;
+        const countdownElement = document.getElementById('counter');
+
+        const countdown = setInterval(() => {
+          countdownElement.textContent = counter;
+          counter--;
+          
+          if (counter < 0) {
+            clearInterval(countdown);
+            window.location.href = '/';
+          }
+        }, 1000);
+      }
+    </script>
+  </body>
+</html>
+`);
+  const id = crypto.randomUUID();
+  res.cookie('user', JSON.stringify({ name: body.name, id }));
+  res.status(302, 'Redirecting').headers.set('Location', '/');
+  return res.send();
+});
+
+router.get('/sign-out', () => {
+  const { res } = router;
+  res.cookie('user', '');
+  res.status(302, 'Redirecting').headers.set('Location', '/');
+  return res.send();
+});
+
+export { router as SigningRouter };
+```
