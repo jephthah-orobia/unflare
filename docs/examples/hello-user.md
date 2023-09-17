@@ -2,6 +2,20 @@
 
 This guide will walk you through the process of creating a simple “Hello, {user}!” site using Unflare, leveraging the power of Cloudflare’s worker. You can view the final result of this tutorial [here](https://example-hello-user.unflare.workers.dev/).
 
+## Prerequisites
+
+Before starting this tutorial, it’s important to have a solid understanding of several technologies and skills. Here’s what you need to know:
+
+- **HTML 5**: The standard markup language for creating web pages.
+- **CSS**: The style-sheet language used for describing the look and formatting of a document written in HTML.
+- **JavaScript**: A high-level, interpreted programming language that conforms to the ECMAScript specification.
+- **TypeScript**: An open-source language which builds on JavaScript by adding static type definitions.
+- **npm (Node Package Manager)**: An essential tool for any JavaScript developer, used for managing and sharing packages.
+
+Additionally, you should be comfortable with managing npm projects. This includes understanding the structure of `package.json`, installing dependencies, and running scripts.
+
+If you’re new to any of these topics, there are many resources available online where you can learn more about them. Once you’re comfortable with these technologies, you’ll be able to get the most out of this tutorial.
+
 ## Getting Started
 
 Before we dive in, make sure to familiarize yourself with how to initialize your serverless project. You can find more information about this [here](https://developers.cloudflare.com/workers/get-started/guide/).
@@ -17,8 +31,8 @@ In this tutorial, you will:
 3. Learn how to acquire necessary assets (i.e., `req` and `res`) via object destructuring.
 4. Understand `req` as a `RequestInspector` and `res` as a `ResponseFactory`.
 5. Retrieve information by users when they submit a form.
-5. Learn how to set cookies.
-6. Deploy your “Hello, {user}!” site.
+6. Learn how to set cookies.
+7. Deploy your “Hello, {user}!” site.
 
 By the end of this tutorial, you will have a fully functioning site that greets the user with a friendly “Hello, {user}!”. This tutorial is designed to be similar to developing on a Node Express app, making it a comfortable transition for those familiar with that environment. We look forward to seeing what you create!
 
@@ -97,7 +111,7 @@ $ > npm run start
 Click one of the links given by wrangler to checkout your work. If you see "Hello World!" on your browser, then everything is working great. Now it's time to publish it to Workers with the following command:
 
 ```
-$ > wrangler publish
+$ > wrangler publish .
 ```
 
 > Important! Make sure its `wrangler publish` and NOT `npm publish`. If you made this mistake, npm will try to publish your work as a package.
@@ -436,6 +450,7 @@ Our `router` is not yet exported. Export the `router` with the name `SingingRout
 ```typescript
 export { router as SigningRouter };
 ```
+
 This concludes your revised version of `signing.ts`. Your final code int the file should look like this:
 
 ```typescript
@@ -500,3 +515,41 @@ router.get('/sign-out', () => {
 
 export { router as SigningRouter };
 ```
+
+## Conclusion
+
+Now, return to `index.ts`, import `{ HomeRoute }` from `./handlers/home` and `{ SigningRouter }` from `./handlers/signing`. We will utilize the method `.use()` of Unflare instance to incorporatet the routes and routers (this method is also beneficial for integrating middlewares and error handlers):
+
+```typescript
+import { Unflare } from 'unflare';
+import { HomeRoute } from './handlers/home';
+import { SigningRouter } from './handlers/signing';
+
+const app = new Unflare();
+
+app.use(HomeRoute, SigningRouter);
+
+export default app;
+```
+
+To test your project, run the npm command:
+
+```
+$ > npm start
+```
+
+Your project should function [this](https://example-hello-user.unflare.workers.dev/).
+
+Finally, publish your work on Workers:
+
+```
+$ > wangler publish .
+```
+
+or
+
+```
+$ > npx wrangler deploy
+```
+
+Congratulations on completing your project! If you have any other questions or need further assistance, feel free to ask. Happy coding! 😊
