@@ -108,15 +108,27 @@ export class ResponseFactory {
     return this;
   }
 
+  header(key: string, value: string) {
+    if (this.isDone) {
+      console.error(
+        'Cannot change value of reponse body once send() or end() is called.'
+      );
+    } else {
+      this.headers.set(key, value);
+    }
+    return this;
+  }
+
   write(content: string) {
     if (this.isDone) {
       console.error(
         'Cannot change value of reponse body once send() or end() is called.'
       );
-      return;
+      return this;
     }
     if (!this.#body || typeof this.#body != 'string') this.#body = '';
     this.#body += content;
+    return this;
   }
 
   writeLine(content: string) {
@@ -124,10 +136,11 @@ export class ResponseFactory {
       console.error(
         'Cannot change value of reponse body once send() or end() is called.'
       );
-      return;
+      return this;
     }
     if (!this.#body || typeof this.#body != 'string') this.#body = '';
     this.#body += content + '\n';
+    return this;
   }
 
   end() {
