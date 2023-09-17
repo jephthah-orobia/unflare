@@ -38,5 +38,6 @@ $ npm install unflare
 - auto extraction of queries, params, cookies and body of request.
 
 ## GUIDES
-
+- Tutorials:
+  * [Hello {User}!](./docs/examples/hello-user.md)
 - [Contributing](./CONTRIBUTING.md)
